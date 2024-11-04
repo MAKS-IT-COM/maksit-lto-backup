@@ -68,7 +68,7 @@ public class Application {
     Console.OutputEncoding = Encoding.UTF8;
 
     while (true) {
-      Console.WriteLine("MaksIT.LTO.Backup v0.0.1");
+      Console.WriteLine("MaksIT.LTO.Backup v0.0.3");
       Console.WriteLine("© Maksym Sadovnychyy (MAKS-IT) 2024");
 
       Console.WriteLine("\nSelect an action:");
