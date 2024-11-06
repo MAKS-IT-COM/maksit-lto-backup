@@ -13,7 +13,7 @@
     "Backups": [
       {
         "Name": "Normal test",
-        "Barcode": "",
+        "Barcode": "L51000000",
         "LTOGen": "LTO5",
         "Source": {
           "LocalPath": {
@@ -28,7 +28,7 @@
       },
       {
         "Name": "Network test",
-        "Barcode": "",
+        "Barcode": "L51000001",
         "LTOGen": "LTO5",
         "Source": {
           "RemotePath": {

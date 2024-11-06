@@ -27,7 +27,7 @@ If the issue is specific to a particular LTO version that you cannot test, pleas
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px; width: 217px;">
 </a>
 
-- **Sponsoring Hardware**: If you're facing compatibility issues with a specific LTO generation, you can sponsor by directly purchasing the relevant LTO drive and tapes for testing. Contact me for shipping details if you're interested in sponsoring hardware.
+- **Sponsoring Hardware**: If you're facing compatibility issues with a specific LTO generation, you can [gofundme](https://gofund.me/6ef96254) by directly purchasing the relevant LTO drive and tapes for testing. Contact me for shipping details if you're interested in sponsoring hardware.
 
 ## Code Contribution
 
@@ -38,11 +38,11 @@ If the issue is specific to a particular LTO version that you cannot test, pleas
 3. **Documentation**: Ensure any new methods, classes, or configurations are fully documented.
 4. **Testing**: Test your changes thoroughly and add relevant tests where possible.
 
+Thank you for considering contributing, and feel free to reach out if you have questions! Your support helps make MaksIT.LTO.Backup better for everyone.
+
 ## Contact
 
 If you have any questions or need further assistance, feel free to reach out:
 
 - **Email**: [maksym.sadovnychyy@gmail.com](mailto:maksym.sadovnychyy@gmail.com)
 - **Reddit**: [MaksIT.LTO.Backup: A Simplified CLI Tool for Windows LTO Tape Backups](https://www.reddit.com/r/MaksIT/comments/1ghgbx5/maksitltobackup_a_simplified_cli_tool_for_windows/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
-
-Thank you for considering contributing, and feel free to reach out if you have questions! Your support helps make MaksIT.LTO.Backup better for everyone.

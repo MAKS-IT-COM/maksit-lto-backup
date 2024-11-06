@@ -1,5 +1,5 @@
 # Define project path
-$projectPath = "./YourProject.csproj"
+$projectPath = "./MaksIT.LTO.Backup/MaksIT.LTO.Backup.csproj"
 
 # List of runtime identifiers for self-contained deployments
 $runtimes = @(
