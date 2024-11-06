@@ -4,6 +4,13 @@
 
 A C# application designed to facilitate backup and restore operations to an LTO tape drive. This application enables seamless management of backups by handling file organization, descriptor creation, and efficient tape handling processes for loading, writing, and restoring data.
 
+**🚀 Support MaksIT.LTO.Backup**
+Help me bring reliable and affordable data backup solutions to everyone! With your support, I can test across multiple LTO generations, enhance this software, and ensure compatibility and performance for all users.
+
+[Contribute to MaksIT.LTO.Backup’s development here!](https://gofund.me/6ef96254)
+
+Every donation brings us closer to providing a robust, free backup tool that prioritizes data security and accessibility. Thank you for being part of this journey!
+
 ## Version History
 
 **v0.0.1 - Initial Release (01/11/2024)**

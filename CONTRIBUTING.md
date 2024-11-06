@@ -27,7 +27,7 @@ If the issue is specific to a particular LTO version that you cannot test, pleas
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px; width: 217px;">
 </a>
 
-- **Sponsoring Hardware**: If you're facing compatibility issues with a specific LTO generation, you can sponsor by directly purchasing the relevant LTO drive and tapes for testing. Contact me for shipping details if you're interested in sponsoring hardware.
+- **Sponsoring Hardware**: If you're facing compatibility issues with a specific LTO generation, you can [gofundme](https://gofund.me/6ef96254) by directly purchasing the relevant LTO drive and tapes for testing. Contact me for shipping details if you're interested in sponsoring hardware.
 
 ## Code Contribution
 
