@@ -14,11 +14,14 @@ public partial class TapeDeviceHandler : IDisposable {
   private string _tapeDevicePath;
   private SafeFileHandle _tapeHandle;
 
+  public LTOCartridgeMemory? ltoCartridgeMemory;
+
   private const uint GENERIC_READ = 0x80000000;
   private const uint GENERIC_WRITE = 0x40000000;
   private const uint OPEN_EXISTING = 3;
 
   // Define IOCTL base
+  private const uint FILE_DEVICE_CONTROLLER = 0x00000004;
   private const uint FILE_DEVICE_TAPE = 0x0000001F;
   private const uint FILE_DEVICE_MASS_STORAGE = 0x0000002D;
 
@@ -75,7 +78,8 @@ public partial class TapeDeviceHandler : IDisposable {
     _logger = logger;
     _tapeDevicePath = tapeDevicePath;
     OpenTapeDevice(GENERIC_READ | GENERIC_WRITE);
-  }
+    ltoCartridgeMemory = new LTOCartridgeMemory(this);
+    }
 
   [MemberNotNull(nameof(_tapeHandle))]
   private void OpenTapeDevice(uint desiredAccess) {

@@ -1,6 +1,4 @@
-using System;
 using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
 
 namespace MaksIT.LTO.Core;
 
@@ -82,9 +80,24 @@ public partial class TapeDeviceHandler : IDisposable {
   // IOCTL_TAPE_WRITE_MARKS definitions
   //
 
+  /// <summary>
+  /// This type of mark is typically used to denote the end of a set or collection of files rather than individual files. It’s commonly used in situations where data blocks are grouped logically as sets. This can be useful when you want to denote larger logical separations within the tape, but it’s less commonly used for simple end-of-file markers.
+  /// </summary>
   public const uint TAPE_SETMARKS = 0;
+ 
+  /// <summary>
+  /// This is the standard mark used to indicate the end of a file on the tape. When you have multiple files in a backup, `TAPE_FILEMARKS` is often used between each file or at the end of the backup to signal the end of a logical set of data. For most cases, especially when working with a series of files, this is the most appropriate mark to use to separate or end file data.
+  /// </summary>
   public const uint TAPE_FILEMARKS = 1;
+
+  /// <summary>
+  /// This is a shorter version of a standard file mark. It’s primarily used when you want to conserve tape space but still need a delimiter between sections. However, not all drives support `TAPE_SHORT_FILEMARKS`, and they may not be as reliable for indicating the end of a data sequence in critical backup scenarios.
+  /// </summary>
   public const uint TAPE_SHORT_FILEMARKS = 2;
+
+  /// <summary>
+  /// This type of mark takes up more tape space and is a longer version of the file mark, used in situations where a highly visible or robust delimiter is required. This is generally not necessary for most backups but may be useful if you want a very strong physical marker on the tape.
+  /// </summary>
   public const uint TAPE_LONG_FILEMARKS = 3;
 
   [StructLayout(LayoutKind.Sequential)]
@@ -383,10 +396,12 @@ public partial class TapeDeviceHandler : IDisposable {
   }
 
   /// <summary>
-  /// Write tape marks
+  /// Write tape marks.
+  /// For marking the end of a backup of multiple files, **`TAPE_FILEMARKS`** is generally the most appropriate choice. It is the standard file delimiter used for distinguishing individual files or logical breaks on the tape. 
+  /// If you need a more significant delimiter, such as at the end of an entire backup set, you might consider adding a **`TAPE_SETMARKS`** after the `TAPE_FILEMARKS`, but typically, `TAPE_FILEMARKS` alone is sufficient for marking the end of file sequences in backups.
   /// <param name="type">The type of marks to write. Valid values are <see cref="TAPE_SETMARKS"/>, <see cref="TAPE_FILEMARKS"/>, <see cref="TAPE_SHORT_FILEMARKS"/> and <see cref="TAPE_LONG_FILEMARKS"/>.</param>
   /// <param name="count">The number of marks to write.</param>
-  public void WriteMarks(uint type, uint count) {
+  public int WriteMarks(uint type, uint count) {
     TAPE_WRITE_MARKS marks = new TAPE_WRITE_MARKS {
       Type = type,
       Count = count,
@@ -401,10 +416,12 @@ public partial class TapeDeviceHandler : IDisposable {
 
       if (result) {
         Console.WriteLine("Write Marks: Success");
+        return 0;
       }
       else {
         int error = Marshal.GetLastWin32Error();
         Console.WriteLine($"Write Marks: Failed with error code {error}");
+        return error;
       }
     }
     finally {
