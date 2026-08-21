@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 
+
 namespace MaksIT.LTO.Core;
 
 public partial class TapeDeviceHandler : IDisposable {
@@ -81,17 +82,17 @@ public partial class TapeDeviceHandler : IDisposable {
   //
 
   /// <summary>
-  /// This type of mark is typically used to denote the end of a set or collection of files rather than individual files. Itís commonly used in situations where data blocks are grouped logically as sets. This can be useful when you want to denote larger logical separations within the tape, but itís less commonly used for simple end-of-file markers.
+  /// This type of mark is typically used to denote the end of a set or collection of files rather than individual files. It¬ùs commonly used in situations where data blocks are grouped logically as sets. This can be useful when you want to denote larger logical separations within the tape, but it¬ùs less commonly used for simple end-of-file markers.
   /// </summary>
   public const uint TAPE_SETMARKS = 0;
- 
+
   /// <summary>
   /// This is the standard mark used to indicate the end of a file on the tape. When you have multiple files in a backup, `TAPE_FILEMARKS` is often used between each file or at the end of the backup to signal the end of a logical set of data. For most cases, especially when working with a series of files, this is the most appropriate mark to use to separate or end file data.
   /// </summary>
   public const uint TAPE_FILEMARKS = 1;
 
   /// <summary>
-  /// This is a shorter version of a standard file mark. Itís primarily used when you want to conserve tape space but still need a delimiter between sections. However, not all drives support `TAPE_SHORT_FILEMARKS`, and they may not be as reliable for indicating the end of a data sequence in critical backup scenarios.
+  /// This is a shorter version of a standard file mark. It¬ùs primarily used when you want to conserve tape space but still need a delimiter between sections. However, not all drives support `TAPE_SHORT_FILEMARKS`, and they may not be as reliable for indicating the end of a data sequence in critical backup scenarios.
   /// </summary>
   public const uint TAPE_SHORT_FILEMARKS = 2;
 
@@ -430,15 +431,6 @@ public partial class TapeDeviceHandler : IDisposable {
   }
 
 
-  public class TapePosition {
-    public uint? MethodType { get; set; }
-    public uint? Partition { get; set; }
-    public uint? OffsetLow { get; set; }
-    public uint? OffsetHigh { get; set; }
-    public int? Error { get; set; }
-  }
-
-
   /// <summary>
   /// Get the current tape position
   /// </summary>
@@ -446,10 +438,10 @@ public partial class TapeDeviceHandler : IDisposable {
   /// <param name="partition">The partition number.</param>
   /// <param name="offsetLow">The low offset value.</param>
   /// <param name="offsetHigh">The high offset value.</param>
-  /// <returns>The tape position <see cref="TapePosition"/>.</returns>
-  public TapePosition GetPosition(uint type, uint partition = 0, uint offsetLow = 0, uint offsetHigh = 0) {
+  /// <returns>The tape position <see cref="MassStorage.TapePosition"/>.</returns>
+  public MassStorage.TapePosition GetPosition(uint type, uint partition = 0, uint offsetLow = 0, uint offsetHigh = 0) {
     TAPE_GET_POSITION position = new TAPE_GET_POSITION {
-      Type = 0,
+      Type = type,
       Partition = partition,
       OffsetLow = offsetLow,
       OffsetHigh = offsetHigh
@@ -468,7 +460,7 @@ public partial class TapeDeviceHandler : IDisposable {
         Console.WriteLine($"OffsetLow: {position.OffsetLow}");
         Console.WriteLine($"OffsetHigh: {position.OffsetHigh}");
 
-        return new TapePosition {
+        return new MassStorage.TapePosition {
           MethodType = position.Type,
           Partition = position.Partition,
           OffsetLow = position.OffsetLow,
@@ -479,7 +471,7 @@ public partial class TapeDeviceHandler : IDisposable {
         int error = Marshal.GetLastWin32Error();
         Console.WriteLine($"Get Position: Failed with error code {error}");
 
-        return new TapePosition {
+        return new MassStorage.TapePosition {
           Error = error
         };
       }

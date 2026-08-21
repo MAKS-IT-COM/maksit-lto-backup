@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="MaksIT.LTO.Backup.Shared/MaksIT.LTO.Backup.Shared.csproj" />
+  <Project Path="MaksIT.LTO.Backup.Service/MaksIT.LTO.Backup.Service.csproj" />
+  <Project Path="MaksIT.LTO.Backup.UI/MaksIT.LTO.Backup.UI.csproj" />
+  <Project Path="MaksIT.LTO.Backup/MaksIT.LTO.Backup.csproj" />
+  <Project Path="MaksIT.LTO.Core/MaksIT.LTO.Core.csproj" />
+  <Project Path="MaksIT.LTO.Tests/MaksIT.LTO.Tests.csproj" />
+</Solution>

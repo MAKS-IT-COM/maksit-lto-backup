@@ -1,48 +1,79 @@
 # Contributing to MaksIT.LTO.Backup
 
-Thank you for your interest in contributing to the MaksIT.LTO.Backup project! Whether you're submitting a bug report, suggesting a new feature, or improving the code, your efforts are greatly appreciated. Below are some guidelines to help make the process smooth and effective.
+Thank you for contributing. C# style: repo-root [`.editorconfig`](.editorconfig).
 
-## Getting Started
+## Development setup
 
-1. **Fork the Repository**: Start by forking this repository to your GitHub account.
-2. **Clone Your Fork**: Clone the fork to your local machine to begin making changes.
-   ```bash
-   git clone https://github.com/your-username/MaksIT.LTO.Backup.git
-   ```
-3. **Install Dependencies**: Ensure .NET8 or higher is installed on your system.
-4. **Prepare Configurations**: Check the `README.md` for details on setting up `configuration.json` in the application directory.
-5. **Run and Test**: Before submitting changes, ensure the application builds and functions correctly. Run all relevant tests and add new ones if needed.
+### Prerequisites
 
-## Reporting Issues
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- Git
+- PowerShell 7+ (RepoUtils scripts under `utils/`)
 
-When reporting an issue, please include:
-- Detailed steps to reproduce the issue.
-- Your operating system and .NET version.
-- Any relevant logs or error messages.
+### Build
 
-If the issue is specific to a particular LTO version that you cannot test, please consider either:
-- **Providing Funding**: Donations to cover hardware expenses can help expand compatibility. Contributions can be made via:
+```powershell
+cd src
+dotnet build MaksIT.LTO.slnx
+```
 
-<a href="https://www.buymeacoffee.com/maksitcom" target="_blank">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px; width: 217px;">
-</a>
+### Configuration
 
-- **Sponsoring Hardware**: If you're facing compatibility issues with a specific LTO generation, you can [gofundme](https://gofund.me/6ef96254) by directly purchasing the relevant LTO drive and tapes for testing. Contact me for shipping details if you're interested in sponsoring hardware.
+Edit the shared file only: [`src/MaksIT.LTO.Backup.Shared/configuration.json`](src/MaksIT.LTO.Backup.Shared/configuration.json). Console, Avalonia UI, and Worker link it into their outputs. See [README.md](README.md).
 
-## Code Contribution
+### Tests
 
-### Guidelines
+Prefer emulator-backed tests (no physical LTO required). Tests run under **Microsoft Testing Platform** (`src/global.json` `test.runner`) with **xunit.v3** and **coverlet.MTP**:
 
-1. **Pull Request**: Open a pull request (PR) with a clear description of your changes. If the PR is linked to an issue, reference it in the description.
-2. **Code Style**: Follow existing code conventions and formatting. Keep your changes focused and avoid unnecessary code refactoring.
-3. **Documentation**: Ensure any new methods, classes, or configurations are fully documented.
-4. **Testing**: Test your changes thoroughly and add relevant tests where possible.
+```powershell
+utils\Invoke-TestEngine.bat
+```
 
-Thank you for considering contributing, and feel free to reach out if you have questions! Your support helps make MaksIT.LTO.Backup better for everyone.
+Or:
+
+```powershell
+cd src
+dotnet test .\MaksIT.LTO.Tests
+```
+
+Coverage shields at the top of `README.md` are maintained by the **CoverageBadges** plugin (`utils/engines/test/scriptSettings.json`, `badgeFormat: shields`). Run `utils\Invoke-TestEngine.bat` after meaningful coverage changes and commit the updated README.
+
+### Release
+
+1. Update [CHANGELOG.md](CHANGELOG.md) and bump `<Version>` in [`Directory.Build.props`](Directory.Build.props) (`X.Y.Z` or SemVer prerelease such as `0.1.0-alpha.1`).
+2. Commit on `main`, tag `v{version}` on HEAD (e.g. `v0.1.0-alpha.1`). GitHub marks hyphenated versions as prerelease.
+3. Run `utils\Invoke-ReleasePackage.bat`.
+
+## Commit format
+
+```text
+(type): description
+```
+
+Types: `(feature):`, `(bugfix):`, `(refactor):`, `(perf):`, `(test):`, `(docs):`, `(build):`, `(ci):`, `(style):`, `(revert):`, `(chore):`.
+
+Lowercase description; no trailing period.
+
+## Code style
+
+- File-scoped namespaces; two blank lines after the last `using`
+- Usings: System → Microsoft → 3rd party → MaksIT (length-sorted within each group; no blank lines between groups)
+- K&R braces; prefer `var`; omit `{}` on single-statement `if` / loops
+- Prefer emulator tests when physical tape is unavailable
+
+## Reporting issues
+
+Include OS, .NET version, `DeviceMode` / `Topology`, and relevant logs. Physical tape/changer bugs should note Windows (`\\.\Tape0` / `\\.\Changer0`) or Linux (`/dev/nst*` / `/dev/sg*`) paths.
+
+If the issue needs hardware you cannot test, funding or drive sponsorship helps — see [README.md](README.md) / Buy Me a Coffee links.
+
+## Pull requests
+
+1. Build and emulator tests pass (`utils\Invoke-TestEngine.bat` or `dotnet test`).
+2. Update README / CHANGELOG when behavior or public config changes.
+3. Keep the diff scoped; no unrelated refactors.
 
 ## Contact
 
-If you have any questions or need further assistance, feel free to reach out:
-
 - **Email**: [maksym.sadovnychyy@gmail.com](mailto:maksym.sadovnychyy@gmail.com)
-- **Reddit**: [MaksIT.LTO.Backup: A Simplified CLI Tool for Windows LTO Tape Backups](https://www.reddit.com/r/MaksIT/comments/1ghgbx5/maksitltobackup_a_simplified_cli_tool_for_windows/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
+- **Reddit**: [MaksIT.LTO.Backup thread](https://www.reddit.com/r/MaksIT/comments/1ghgbx5/maksitltobackup_a_simplified_cli_tool_for_windows/)

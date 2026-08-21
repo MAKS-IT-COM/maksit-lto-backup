@@ -1,38 +1,31 @@
-﻿namespace MaksIT.LTO.Core.Utilities;
+using System.Buffers.Binary;
+
+
+namespace MaksIT.LTO.Core.Utilities;
 
 public static class PaddingUtility {
-
-  private const byte _specialByte = 0x80;
-
   public static byte[] AddPadding(byte[] data, int blockSize) {
-    var paddingSize = blockSize - (data.Length % blockSize);
-    if (paddingSize == blockSize) {
-      paddingSize = 0;  // no padding needed if already aligned
-    }
-
-    var paddedData = new byte[data.Length + paddingSize];
-    Array.Copy(data, paddedData, data.Length);
-
-    // fill the padding bytes with specialBytes
-    for (var i = data.Length; i < paddedData.Length; i++) {
-      paddedData[i] = _specialByte;
-    }
-
-    return paddedData;
+    ArgumentNullException.ThrowIfNull(data, "data");
+    ArgumentOutOfRangeException.ThrowIfLessThan(blockSize, 1, "blockSize");
+    int num = 4 + data.Length;
+    int num2 = (num + blockSize - 1) / blockSize * blockSize;
+    byte[] array = new byte[num2];
+    BinaryPrimitives.WriteInt32LittleEndian(array.AsSpan(0, 4), data.Length);
+    Array.Copy(data, 0, array, 4, data.Length);
+    return array;
   }
 
   public static byte[] RemovePadding(byte[] paddedData, int blockSize) {
-    var originalLength = paddedData.Length;
-
-    // find the original length by checking for the padding byte 0x80
-    while (originalLength > 0 && paddedData[originalLength - 1] == _specialByte) {
-      originalLength--;
+    ArgumentNullException.ThrowIfNull(paddedData, "paddedData");
+    if (paddedData.Length < 4) {
+      throw new ArgumentException("Padded buffer is too short to contain a length prefix.", "paddedData");
     }
-
-    // create a new array to hold the unpadded data
-    var unpaddedData = new byte[originalLength];
-    Array.Copy(paddedData, unpaddedData, originalLength);
-
-    return unpaddedData;
+    int num = BinaryPrimitives.ReadInt32LittleEndian(paddedData.AsSpan(0, 4));
+    if (num < 0 || num + 4 > paddedData.Length) {
+      throw new ArgumentException("Invalid length prefix in padded buffer.", "paddedData");
+    }
+    byte[] array = new byte[num];
+    Array.Copy(paddedData, 4, array, 0, num);
+    return array;
   }
 }

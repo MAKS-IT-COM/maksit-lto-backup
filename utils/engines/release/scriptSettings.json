@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "LTO Backup Release Script Settings",
+  "description": "RepoUtils release pipeline for maksit-lto-backup application binaries.",
+  "plugins": [
+    {
+      "name": "DotNetReleaseVersion",
+      "stageLabel": "build",
+      "enabled": true,
+      "projectFiles": [
+        "..\\..\\..\\src\\MaksIT.LTO.Backup\\MaksIT.LTO.Backup.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\MaksIT.LTO.Backup.UI.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.Service\\MaksIT.LTO.Backup.Service.csproj"
+      ]
+    },
+    {
+      "name": "DotNetTest",
+      "stageLabel": "test",
+      "enabled": true,
+      "project": "..\\..\\..\\src\\MaksIT.LTO.Tests",
+      "resultsDir": "..\\..\\..\\test-results"
+    },
+    {
+      "name": "QualityGate",
+      "stageLabel": "qualityGate",
+      "enabled": true,
+      "coverageThreshold": 0,
+      "failOnVulnerabilities": true,
+      "projectFiles": [
+        "..\\..\\..\\src\\MaksIT.LTO.Backup\\MaksIT.LTO.Backup.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\MaksIT.LTO.Backup.UI.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.Service\\MaksIT.LTO.Backup.Service.csproj"
+      ]
+    },
+    {
+      "name": "DotNetPublish",
+      "stageLabel": "build",
+      "enabled": true,
+      "projectFiles": [
+        "..\\..\\..\\src\\MaksIT.LTO.Backup\\MaksIT.LTO.Backup.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\MaksIT.LTO.Backup.UI.csproj",
+        "..\\..\\..\\src\\MaksIT.LTO.Backup.Service\\MaksIT.LTO.Backup.Service.csproj"
+      ],
+      "artifactsDir": "..\\..\\..\\releases"
+    },
+    {
+      "name": "DotNetCreateArchive",
+      "stageLabel": "build",
+      "enabled": true,
+      "zipNamePattern": "maksit-lto-backup-{version}.zip"
+    },
+    {
+      "name": "ReleasePublishGuard",
+      "stageLabel": "release",
+      "enabled": true,
+      "branches": [
+        "main"
+      ],
+      "requireExactTagOnHead": true,
+      "tagVersionMustMatchDotNetRelease": true,
+      "whenRequirementsNotMet": "skip",
+      "requireCleanWorkingTree": false,
+      "ensureTagOnRemote": true,
+      "remoteName": "origin"
+    },
+    {
+      "name": "GitHub",
+      "stageLabel": "release",
+      "enabled": true,
+      "githubSecret": "GitHub",
+      "repository": "https://github.com/MAKS-IT-COM/maksit-lto-backup",
+      "releaseNotesFile": "..\\..\\..\\CHANGELOG.md",
+      "releaseTitlePattern": "Release {version}"
+    },
+    {
+      "name": "DotNetNuGet",
+      "stageLabel": "release",
+      "enabled": false,
+      "nugetSecret": "NuGet",
+      "source": "https://api.nuget.org/v3/index.json"
+    },
+    {
+      "name": "NpmPublish",
+      "stageLabel": "release",
+      "enabled": false,
+      "npmSecret": "Npm",
+      "registry": "https://registry.npmjs.org",
+      "access": "public",
+      "workspaceRoot": "..\\..\\.."
+    },
+    {
+      "name": "CleanupArtifacts",
+      "stageLabel": "release",
+      "enabled": true,
+      "includePatterns": [
+        "*"
+      ],
+      "excludePatterns": [
+        "*.zip"
+      ]
+    }
+  ]
+}

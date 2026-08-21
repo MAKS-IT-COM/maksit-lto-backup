@@ -1,0 +1,88 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "Configuration": {
+    "DeviceMode": "Emulated",
+    "Topology": "StandaloneDrive",
+    "TapePath": "\\\\.\\Tape0",
+    "LibraryPath": "\\\\.\\Changer0",
+    "WriteDelay": 100,
+    "FailFastOnChecksumMismatch": true,
+    "Service": {
+      "ServiceName": "MaksIT.LTO.Backup",
+      "Description": "Schedules LTO library backup aggregations using barcode media pools.",
+      "ExecutablePath": ""
+    },
+    "Emulator": {
+      "DataDirectory": ".\\emulator-data",
+      "Library": {
+        "SlotCount": 24,
+        "DriveCount": 2,
+        "IePortCount": 1
+      }
+    },
+    "Backups": [
+      {
+        "Name": "Normal test",
+        "Barcode": "LTO001",
+        "LTOGen": "LTO5",
+        "WriteMode": "Overwrite",
+        "Disabled": false,
+        "Tapes": [
+          { "Barcode": "LTO001", "LastUsedUtc": null },
+          { "Barcode": "LTO002", "LastUsedUtc": null }
+        ],
+        "Source": {
+          "LocalPath": {
+            "Path": "F:\\LTO\\Backup"
+          }
+        },
+        "Destination": {
+          "LocalPath": {
+            "Path": "F:\\LTO\\Restore"
+          }
+        }
+      },
+      {
+        "Name": "Network test",
+        "Barcode": "LTO002",
+        "LTOGen": "LTO5",
+        "Disabled": false,
+        "Tapes": [],
+        "Source": {
+          "RemotePath": {
+            "Path": "\\\\nassrv0002.corp.maks-it.com\\data-1\\Users",
+            "PasswordCredentials": {
+              "Username": "",
+              "Password": ""
+            },
+            "Protocol": "SMB"
+          }
+        },
+        "Destination": {
+          "LocalPath": {
+            "Path": "F:\\LTO\\Restore"
+          }
+        }
+      }
+    ],
+    "Aggregations": [
+      {
+        "Name": "Night",
+        "Disabled": false,
+        "JobNames": [ "Normal test" ],
+        "Schedule": {
+          "RunMonth": [],
+          "RunWeekday": [ "Monday" ],
+          "RunTime": [ "00:00" ],
+          "MinIntervalMinutes": 60
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MaksIT.LTO.Backup.UI.App"
+             Name="MaksIT.LTO.Backup"
+             RequestedThemeVariant="Dark">
+  <Application.Styles>
+    <SimpleTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml" />
+    <StyleInclude Source="avares://MaksIT.LTO.Backup.UI/Themes/Dark.axaml" />
+  </Application.Styles>
+</Application>

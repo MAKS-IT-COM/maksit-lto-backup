@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
@@ -79,7 +78,7 @@ public partial class TapeDeviceHandler : IDisposable {
     _tapeDevicePath = tapeDevicePath;
     OpenTapeDevice(GENERIC_READ | GENERIC_WRITE);
     ltoCartridgeMemory = new LTOCartridgeMemory(this);
-    }
+  }
 
   [MemberNotNull(nameof(_tapeHandle))]
   private void OpenTapeDevice(uint desiredAccess) {
@@ -173,7 +172,5 @@ public partial class TapeDeviceHandler : IDisposable {
 
 
 
-  public void Dispose() {
-    _tapeHandle?.Dispose();
-  }
+  public void Dispose() => _tapeHandle?.Dispose();
 }

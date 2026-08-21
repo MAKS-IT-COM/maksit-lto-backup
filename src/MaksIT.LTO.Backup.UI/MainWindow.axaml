@@ -1,0 +1,660 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:MaksIT.LTO.Backup.UI.Controls"
+        x:Class="MaksIT.LTO.Backup.UI.MainWindow"
+        Title="MaksIT.LTO.Backup"
+        Width="1100"
+        Height="760"
+        MinWidth="880"
+        MinHeight="620">
+  <Grid Margin="12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="160" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+      <TextBlock Text="MaksIT.LTO.Backup" FontSize="18" FontWeight="SemiBold" Margin="0,0,12,0" VerticalAlignment="Bottom" />
+      <TextBlock Text="Operations console" Classes="hint" VerticalAlignment="Bottom" />
+    </StackPanel>
+
+    <Border Grid.Row="1" Classes="statusBar" Margin="0,0,0,8">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <CheckBox Name="LiveMonitorCheckBox"
+                    Content="Live monitor"
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0"
+                    IsCheckedChanged="LiveMonitorCheckBox_Changed" />
+          <TextBlock Text="Every" VerticalAlignment="Center" Margin="0,0,6,0" />
+          <ComboBox Name="MonitorIntervalCombo"
+                    Width="64"
+                    SelectedIndex="1"
+                    SelectionChanged="MonitorIntervalCombo_SelectionChanged">
+            <ComboBoxItem Content="2 s" Tag="2" />
+            <ComboBoxItem Content="5 s" Tag="5" />
+            <ComboBoxItem Content="10 s" Tag="10" />
+            <ComboBoxItem Content="30 s" Tag="30" />
+          </ComboBox>
+          <Button Content="Refresh now" Click="RefreshMonitor_Click" Width="96" Margin="10,0,0,0" />
+        </StackPanel>
+        <TextBlock Name="HeaderStatusText"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Text="Drive and library status will appear here." />
+      </DockPanel>
+    </Border>
+
+    <TabControl Grid.Row="2" Name="MainTabs">
+      <TabItem Header="Monitor">
+        <Grid Margin="8">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <controls:GroupBox Header="Tape drive">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Text="Mode:" Margin="0,0,0,4" />
+              <TextBlock Grid.Row="0" Grid.Column="1" Name="MonitorDriveModeText" Margin="0,0,12,4" />
+              <TextBlock Grid.Row="0" Grid.Column="2" Text="Topology:" Margin="0,0,0,4" />
+              <TextBlock Grid.Row="0" Grid.Column="3" Name="MonitorDriveTopologyText" Margin="0,0,0,4" />
+
+              <TextBlock Grid.Row="1" Text="State:" Margin="0,0,0,4" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="MonitorDriveStateText" FontWeight="SemiBold" Margin="0,0,0,4" />
+
+              <TextBlock Grid.Row="2" Text="Path:" Margin="0,0,0,4" />
+              <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Name="MonitorDrivePathText" TextWrapping="Wrap" Margin="0,0,0,4" />
+
+              <TextBlock Grid.Row="3" Text="Status code:" />
+              <TextBlock Grid.Row="3" Grid.Column="1" Name="MonitorDriveStatusCodeText" Margin="0,0,12,0" />
+              <TextBlock Grid.Row="3" Grid.Column="2" Text="Abs. block:" />
+              <TextBlock Grid.Row="3" Grid.Column="3" Name="MonitorDriveBlockText" />
+            </Grid>
+          </controls:GroupBox>
+
+          <controls:GroupBox Grid.Row="1" Name="MonitorLibraryGroup" Header="Tape library">
+            <StackPanel>
+              <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="120" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Mode:" Margin="0,0,0,4" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Name="MonitorLibraryModeText" Margin="0,0,12,4" />
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Summary:" Margin="0,0,0,4" />
+                <TextBlock Grid.Row="0" Grid.Column="3" Name="MonitorLibrarySummaryText" FontWeight="SemiBold" Margin="0,0,0,4" />
+
+                <TextBlock Grid.Row="1" Text="Path:" Margin="0,0,0,4" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="MonitorLibraryPathText" TextWrapping="Wrap" Margin="0,0,0,4" />
+
+                <TextBlock Grid.Row="2" Text="Drives occupied:" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Name="MonitorLibraryDrivesText" Margin="0,0,12,0" />
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="Updated:" />
+                <TextBlock Grid.Row="2" Grid.Column="3" Name="MonitorUpdatedText" />
+              </Grid>
+              <TextBlock Name="MonitorLibraryErrorText" Classes="warning" TextWrapping="Wrap" />
+            </StackPanel>
+          </controls:GroupBox>
+
+          <DataGrid Grid.Row="2"
+                    Name="MonitorInventoryGrid"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Slot" Binding="{Binding Slot}" Width="90" />
+              <DataGridTextColumn Header="Type" Binding="{Binding ElementType}" Width="120" />
+              <DataGridTextColumn Header="Occupied" Binding="{Binding Occupied}" Width="90" />
+              <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="160" />
+              <DataGridTextColumn Header="Cartridge" Binding="{Binding CartridgeId}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Drive" Name="DriveTab">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="8">
+            <TextBlock Classes="hint"
+                       Margin="0,0,0,8"
+                       TextWrapping="Wrap"
+                       Text="Standalone drive controls. Load/eject the tape in this drive, then use the Backup tab." />
+
+            <controls:GroupBox Header="Drive">
+              <StackPanel Orientation="Horizontal">
+                <Button Name="LoadTapeButton" Content="Load tape" Click="LoadTape_Click" Width="110" Margin="0,0,8,0" />
+                <Button Name="EjectTapeButton" Content="Eject tape" Click="EjectTape_Click" Width="110" Margin="0,0,8,0" />
+                <Button Name="StatusButton" Content="Get status" Click="GetStatus_Click" Width="110" />
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Header="Cartridge memory (MAM)">
+              <StackPanel>
+                <TextBlock Classes="hint"
+                           Margin="0,0,0,8"
+                           TextWrapping="Wrap"
+                           Text="Applies to the tape currently in this standalone drive." />
+                <StackPanel Orientation="Horizontal">
+                  <Button Content="Read attributes" Click="ReadAttributes_Click" Width="120" Margin="0,0,12,0" />
+                  <TextBlock Text="Barcode:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                  <TextBox Name="StandaloneBarcodeText" Width="200" Margin="0,0,12,0" />
+                  <Button Content="Write barcode" Click="WriteStandaloneBarcode_Click" Width="110" />
+                </StackPanel>
+              </StackPanel>
+            </controls:GroupBox>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Library" Name="LibraryTab">
+        <Grid Margin="8">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Name="LibraryUnavailableText"
+                     Text="Library operations require Topology = TapeLibrary in Settings."
+                     TextWrapping="Wrap"
+                     Margin="0,0,0,8"
+                     IsVisible="False" />
+
+          <controls:GroupBox Grid.Row="1" Name="LibraryLoadedGroup" Header="Loaded cartridge">
+            <StackPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <TextBlock Text="Active drive:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox Name="LibraryActiveDriveCombo"
+                          Width="460"
+                          DisplayMemberBinding="{Binding Summary}"
+                          SelectionChanged="LibraryActiveDriveCombo_SelectionChanged" />
+              </StackPanel>
+              <TextBlock Name="LibraryLoadedSummaryText"
+                         FontWeight="SemiBold"
+                         Margin="0,0,0,4"
+                         Text="No cartridge in a drive bay." />
+              <TextBlock Name="LibraryLoadedHintText"
+                         Classes="hint"
+                         TextWrapping="Wrap"
+                         Margin="0,0,0,8"
+                         Text="Move a cartridge from a storage slot into a drive bay (destination 1000+)." />
+              <StackPanel Orientation="Horizontal">
+                <Button Content="Read MAM" Click="ReadAttributes_Click" Width="100" Margin="0,0,12,0" />
+                <TextBlock Text="Barcode:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBox Name="LibraryBarcodeText"
+                         Width="200"
+                         Margin="0,0,12,0"
+                         ToolTip.Tip="Writes MAM barcode for the cartridge in the selected drive bay" />
+                <Button Content="Assign barcode" Click="WriteLibraryBarcode_Click" Width="120" />
+              </StackPanel>
+            </StackPanel>
+          </controls:GroupBox>
+
+          <controls:GroupBox Grid.Row="2" Name="LibraryActionsGroup" Header="Load / unload">
+            <StackPanel>
+              <Button Content="Refresh inventory" Click="RefreshInventory_Click" Width="140" HorizontalAlignment="Left" Margin="0,0,0,8" />
+
+              <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="140" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Cartridge (source):" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          Name="LoadSourceCombo"
+                          Margin="0,0,8,6"
+                          DisplayMemberBinding="{Binding Display}"
+                          ToolTip.Tip="Occupied storage slot or drive bay to take the cartridge from" />
+                <Button Grid.Row="0" Grid.Column="2"
+                        Content="Load into drive"
+                        Click="LoadIntoDrive_Click"
+                        Width="120"
+                        Margin="0,0,0,6"
+                        ToolTip.Tip="Move the selected cartridge into the selected empty drive bay" />
+
+                <TextBlock Grid.Row="1" Text="Target drive bay:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <ComboBox Grid.Row="1" Grid.Column="1"
+                          Name="LoadDriveCombo"
+                          Margin="0,0,8,6"
+                          DisplayMemberBinding="{Binding Display}"
+                          ToolTip.Tip="Empty drive bay (e.g. 1000, 1001)" />
+
+                <TextBlock Grid.Row="2" Text="Unload from drive:" VerticalAlignment="Center" />
+                <ComboBox Grid.Row="2" Grid.Column="1"
+                          Name="UnloadDriveCombo"
+                          Margin="0,0,8,0"
+                          DisplayMemberBinding="{Binding Display}"
+                          ToolTip.Tip="Drive bay that currently holds a cartridge" />
+                <Button Grid.Row="2" Grid.Column="2"
+                        Content="Unload to storage"
+                        Click="UnloadFromDrive_Click"
+                        Width="120"
+                        ToolTip.Tip="Move the cartridge from the selected drive into the first empty storage slot" />
+              </Grid>
+
+              <Expander Header="Advanced: move any slot → any slot">
+                <StackPanel Margin="0,6,0,0">
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox Name="SourceSlotCombo" Width="300" Margin="0,0,12,0" DisplayMemberBinding="{Binding Display}" />
+                    <TextBlock Text="To:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox Name="DestinationSlotCombo" Width="300" Margin="0,0,12,0" DisplayMemberBinding="{Binding Display}" />
+                    <Button Content="Move" Click="MoveMedium_Click" Width="80" />
+                  </StackPanel>
+                  <TextBlock Classes="hint"
+                             TextWrapping="Wrap"
+                             Text="Use this for slot-to-slot moves that are not a simple load/unload." />
+                </StackPanel>
+              </Expander>
+            </StackPanel>
+          </controls:GroupBox>
+
+          <TextBlock Grid.Row="3" Name="LibraryInventoryLabel" Text="Inventory" FontWeight="SemiBold" Margin="0,0,0,4" />
+          <DataGrid Grid.Row="4"
+                    Name="InventoryGrid"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Slot" Binding="{Binding Slot}" Width="100" />
+              <DataGridTextColumn Header="Type" Binding="{Binding ElementType}" Width="160" />
+              <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="200" />
+              <DataGridTextColumn Header="Cartridge" Binding="{Binding CartridgeId}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Backup" Name="BackupTab">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="8">
+            <controls:GroupBox Header="Loaded cartridge">
+              <StackPanel>
+                <StackPanel Name="BackupDriveSelectorPanel" Orientation="Horizontal" Margin="0,0,0,6" IsVisible="False">
+                  <TextBlock Text="Drive:" VerticalAlignment="Center" Margin="0,0,8,0" Width="64" />
+                  <ComboBox Name="BackupDriveCombo"
+                            Width="500"
+                            DisplayMemberBinding="{Binding Summary}"
+                            SelectionChanged="BackupDriveCombo_SelectionChanged" />
+                </StackPanel>
+                <TextBlock Name="BackupLoadedSummaryText"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,4"
+                           Text="Checking loaded cartridge…" />
+                <TextBlock Name="BackupLoadedHintText"
+                           Classes="hint"
+                           TextWrapping="Wrap"
+                           Text="Backup/restore require a loaded cartridge (standalone drive tape, or library media in a drive bay)." />
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Header="Backup job">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <TextBlock Text="Job:" VerticalAlignment="Center" Margin="0,0,8,0" Width="64" />
+                  <ComboBox Name="BackupCombo"
+                            Width="400"
+                            DisplayMemberBinding="{Binding Name}"
+                            SelectionChanged="BackupCombo_SelectionChanged" />
+                </StackPanel>
+                <TextBlock Name="JobSummaryText"
+                           Classes="hint"
+                           TextWrapping="Wrap"
+                           Text="Select a backup job to see source, destination, LTO generation, and barcode." />
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Name="BackupOperationsGroup" Header="Operations">
+              <StackPanel Orientation="Horizontal">
+                <Button Name="RunBackupButton" Content="Run backup" Click="RunBackup_Click" Width="120" Margin="0,0,8,0" />
+                <Button Name="RunRestoreButton" Content="Run restore" Click="RunRestore_Click" Width="120" Margin="0,0,8,0" />
+                <Button Name="EraseButton" Content="Short erase" Click="Erase_Click" Width="100" />
+              </StackPanel>
+            </controls:GroupBox>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Settings">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="8">
+            <TextBlock Classes="hint"
+                       Margin="0,0,0,8"
+                       TextWrapping="Wrap"
+                       Text="Edits apply to configuration.json used by both console and Avalonia UI." />
+
+            <controls:GroupBox Header="Device">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="160" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Device mode:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="DeviceModeCombo" Margin="0,0,0,6" Width="200" HorizontalAlignment="Left">
+                  <ComboBoxItem Content="Emulated" />
+                  <ComboBoxItem Content="Physical" />
+                </ComboBox>
+
+                <TextBlock Grid.Row="1" Text="Topology:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="TopologyCombo" Margin="0,0,0,6" Width="200" HorizontalAlignment="Left"
+                          SelectionChanged="TopologyCombo_SelectionChanged">
+                  <ComboBoxItem Content="StandaloneDrive" />
+                  <ComboBoxItem Content="TapeLibrary" />
+                </ComboBox>
+
+                <TextBlock Grid.Row="2" Text="Tape path:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <TextBox Grid.Row="2" Grid.Column="1" Name="TapePathText" Margin="0,0,0,6" />
+
+                <TextBlock Grid.Row="3" Name="LibraryPathLabel" Text="Library path:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <TextBox Grid.Row="3" Grid.Column="1" Name="LibraryPathText" Margin="0,0,0,6" />
+
+                <TextBlock Grid.Row="4" Text="Write delay (ms):" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <TextBox Grid.Row="4" Grid.Column="1" Name="WriteDelayText" Width="100" HorizontalAlignment="Left" Margin="0,0,0,6" />
+
+                <TextBlock Grid.Row="5" Text="Fail-fast checksum:" VerticalAlignment="Center" />
+                <CheckBox Grid.Row="5" Grid.Column="1" Name="FailFastChecksumCheck" Content="Abort restore on checksum mismatch" VerticalAlignment="Center" />
+              </Grid>
+            </controls:GroupBox>
+
+            <controls:GroupBox Header="Emulator">
+              <StackPanel>
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="Data directory:" VerticalAlignment="Center" />
+                  <TextBox Grid.Column="1" Name="EmulatorDataDirText" />
+                </Grid>
+                <Grid Name="EmulatorLibrarySettingsGrid">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+
+                  <TextBlock Grid.Row="0" Text="Slots:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <TextBox Grid.Row="0" Grid.Column="1" Name="EmulatorSlotCountText" Width="100" HorizontalAlignment="Left" Margin="0,0,0,6" />
+
+                  <TextBlock Grid.Row="1" Text="Drives:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <TextBox Grid.Row="1" Grid.Column="1" Name="EmulatorDriveCountText" Width="100" HorizontalAlignment="Left" Margin="0,0,0,6" />
+
+                  <TextBlock Grid.Row="2" Text="I/E ports:" VerticalAlignment="Center" />
+                  <TextBox Grid.Row="2" Grid.Column="1" Name="EmulatorIePortCountText" Width="100" HorizontalAlignment="Left" />
+                </Grid>
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Header="Backup jobs">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                  <TextBlock Text="Job:" VerticalAlignment="Center" Margin="0,0,8,0" Width="64" />
+                  <ComboBox Name="SettingsBackupCombo" Width="400" DisplayMemberBinding="{Binding Name}" SelectionChanged="SettingsBackupCombo_SelectionChanged" />
+                  <CheckBox Name="BackupDisabledCheck" Content="Disabled" Margin="16,0,0,0" VerticalAlignment="Center"
+                            ToolTip.Tip="When checked, aggregations skip this job." />
+                </StackPanel>
+
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+
+                  <TextBlock Grid.Row="0" Text="Name:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <TextBox Grid.Row="0" Grid.Column="1" Name="BackupNameText" Margin="0,0,0,6" />
+
+                  <TextBlock Grid.Row="1" Text="Barcode:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <TextBox Grid.Row="1" Grid.Column="1" Name="BackupBarcodeText" Margin="0,0,0,6"
+                           ToolTip.Tip="Standalone / single-tape MAM label. Library pools use Tape rotation below." />
+
+                  <TextBlock Grid.Row="2" Text="LTO generation:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <ComboBox Grid.Row="2" Grid.Column="1" Name="BackupLtoGenCombo" Width="140" HorizontalAlignment="Left" Margin="0,0,0,6">
+                    <ComboBoxItem Content="LTO1" /><ComboBoxItem Content="LTO2" /><ComboBoxItem Content="LTO3" />
+                    <ComboBoxItem Content="LTO4" /><ComboBoxItem Content="LTO5" /><ComboBoxItem Content="LTO6" />
+                    <ComboBoxItem Content="LTO7" /><ComboBoxItem Content="LTO8" /><ComboBoxItem Content="LTO9" />
+                  </ComboBox>
+
+                  <TextBlock Grid.Row="3" Text="Write mode:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <ComboBox Grid.Row="3" Grid.Column="1" Name="BackupWriteModeCombo" Width="140" HorizontalAlignment="Left" Margin="0,0,0,6">
+                    <ComboBoxItem Content="Overwrite" />
+                    <ComboBoxItem Content="Append" />
+                  </ComboBox>
+
+                  <TextBlock Grid.Row="4" Text="Source path:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                  <TextBox Grid.Row="4" Grid.Column="1" Name="BackupSourcePathText" Margin="0,0,0,6" />
+
+                  <TextBlock Grid.Row="5" Text="Destination path:" VerticalAlignment="Center" />
+                  <TextBox Grid.Row="5" Grid.Column="1" Name="BackupDestinationPathText" />
+                </Grid>
+
+                <controls:GroupBox Name="LibraryTapesGroup" Header="Tape rotation (library)" Margin="0,12,0,0">
+                  <StackPanel>
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,0,0,6"
+                               Text="Media pool for this job. Pick barcodes not assigned to other jobs. Never-used tapes first, then oldest LastUsedUtc. Drive claim is automatic." />
+                    <DataGrid Name="BackupTapesGrid"
+                              Height="120"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="False"
+                              Margin="0,0,0,6">
+                      <DataGrid.Columns>
+                        <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="*" />
+                        <DataGridTextColumn Header="Last used (UTC)" Binding="{Binding LastUsedUtcDisplay}" Width="220" IsReadOnly="True" />
+                      </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal">
+                      <ComboBox Name="AvailableTapeBarcodeCombo"
+                                Width="320"
+                                Margin="0,0,8,0"
+                                PlaceholderText="Available library barcodes"
+                                DisplayMemberBinding="{Binding Display}" />
+                      <Button Content="Refresh list" Click="RefreshAvailableTapes_Click" Width="100" Margin="0,0,8,0"
+                              ToolTip.Tip="Reload unassigned barcodes from library inventory" />
+                      <Button Content="Add tape" Click="AddTape_Click" Width="90" Margin="0,0,8,0" />
+                      <Button Content="Remove selected" Click="RemoveTape_Click" Width="120" />
+                    </StackPanel>
+                  </StackPanel>
+                </controls:GroupBox>
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Name="AggregationsGroup" Header="Aggregations (schedule waves)">
+              <StackPanel>
+                <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,0,0,6"
+                           Text="Worker schedules aggregations only. Each wave runs its jobs sequentially with exclusive lease and automatic drive claim/unload." />
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                  <TextBlock Text="Wave:" VerticalAlignment="Center" Margin="0,0,8,0" Width="64" />
+                  <ComboBox Name="SettingsAggregationCombo" Width="280" DisplayMemberBinding="{Binding Name}"
+                            SelectionChanged="SettingsAggregationCombo_SelectionChanged" Margin="0,0,8,0" />
+                  <CheckBox Name="AggregationDisabledCheck" Content="Disabled" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <Button Content="Add wave" Click="AddAggregation_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Remove wave" Click="RemoveAggregation_Click" Width="100" />
+                </StackPanel>
+                <Grid Margin="0,0,0,8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="Name:" VerticalAlignment="Center" />
+                  <TextBox Grid.Column="1" Name="AggregationNameText" />
+                </Grid>
+                <TextBlock Text="Jobs in this wave (ordered):" FontWeight="SemiBold" Margin="0,0,0,4" />
+                <ListBox Name="AggregationJobsList" Height="90" Margin="0,0,0,6" />
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                  <ComboBox Name="AggregationAddJobCombo" Width="280" Margin="0,0,8,0" DisplayMemberBinding="{Binding Name}"
+                            PlaceholderText="Backup job to add" />
+                  <Button Content="Add job" Click="AggregationAddJob_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Remove job" Click="AggregationRemoveJob_Click" Width="100" Margin="0,0,8,0" />
+                  <Button Content="Move up" Click="AggregationMoveJobUp_Click" Width="80" Margin="0,0,8,0" />
+                  <Button Content="Move down" Click="AggregationMoveJobDown_Click" Width="90" />
+                </StackPanel>
+
+                <controls:GroupBox Header="Months (empty = all months)">
+                  <WrapPanel Name="ScheduleMonthPanel">
+                    <CheckBox Content="Jan" Tag="January" Margin="0,0,8,4" />
+                    <CheckBox Content="Feb" Tag="February" Margin="0,0,8,4" />
+                    <CheckBox Content="Mar" Tag="March" Margin="0,0,8,4" />
+                    <CheckBox Content="Apr" Tag="April" Margin="0,0,8,4" />
+                    <CheckBox Content="May" Tag="May" Margin="0,0,8,4" />
+                    <CheckBox Content="Jun" Tag="June" Margin="0,0,8,4" />
+                    <CheckBox Content="Jul" Tag="July" Margin="0,0,8,4" />
+                    <CheckBox Content="Aug" Tag="August" Margin="0,0,8,4" />
+                    <CheckBox Content="Sep" Tag="September" Margin="0,0,8,4" />
+                    <CheckBox Content="Oct" Tag="October" Margin="0,0,8,4" />
+                    <CheckBox Content="Nov" Tag="November" Margin="0,0,8,4" />
+                    <CheckBox Content="Dec" Tag="December" Margin="0,0,8,4" />
+                  </WrapPanel>
+                </controls:GroupBox>
+
+                <controls:GroupBox Header="Weekdays (empty = all days)">
+                  <WrapPanel Name="ScheduleWeekdayPanel">
+                    <CheckBox Content="Mon" Tag="Monday" Margin="0,0,8,4" />
+                    <CheckBox Content="Tue" Tag="Tuesday" Margin="0,0,8,4" />
+                    <CheckBox Content="Wed" Tag="Wednesday" Margin="0,0,8,4" />
+                    <CheckBox Content="Thu" Tag="Thursday" Margin="0,0,8,4" />
+                    <CheckBox Content="Fri" Tag="Friday" Margin="0,0,8,4" />
+                    <CheckBox Content="Sat" Tag="Saturday" Margin="0,0,8,4" />
+                    <CheckBox Content="Sun" Tag="Sunday" Margin="0,0,8,4" />
+                  </WrapPanel>
+                </controls:GroupBox>
+
+                <controls:GroupBox Header="Run Times (UTC)">
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                      <TextBox Name="NewRunTimeText" Width="80" Text="00:00" Margin="0,0,8,0" />
+                      <Button Content="Add" Click="AddRunTime_Click" Width="60" Margin="0,0,8,0" />
+                      <Button Content="Remove" Click="RemoveRunTime_Click" Width="70" />
+                    </StackPanel>
+                    <ListBox Name="RunTimesList" Height="80" />
+                  </StackPanel>
+                </controls:GroupBox>
+
+                <controls:GroupBox Header="Minimum Interval">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBox Name="MinIntervalMinutesText" Width="60" Text="10" Margin="0,0,8,0" />
+                    <TextBlock Text="minutes between wave starts" VerticalAlignment="Center" />
+                  </StackPanel>
+                </controls:GroupBox>
+
+                <TextBlock Name="LastRunUtcText" Classes="hint" Margin="0,6,0,0" Text="Last wave run (UTC): (never)" />
+              </StackPanel>
+            </controls:GroupBox>
+
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+              <Button Content="Save configuration" Click="SaveConfiguration_Click" Width="140" Margin="0,0,8,0" />
+              <Button Content="Reload from disk" Click="ReloadConfiguration_Click" Width="130" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Service">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="8">
+            <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,0,0,8"
+                       Text="Install, start, and stop the LTO backup Worker (Windows service or systemd). Requires elevation for install/uninstall." />
+
+            <controls:GroupBox Header="Worker status">
+              <StackPanel>
+                <TextBlock Name="ServiceStatusText" FontWeight="SemiBold" Margin="0,0,0,6" Text="Status: Unknown" />
+                <TextBlock Name="ServiceExePathText" Classes="hint" TextWrapping="Wrap" Margin="0,0,0,8" Text="Executable: (not found)" />
+                <StackPanel Orientation="Horizontal">
+                  <Button Content="Refresh" Click="ServiceRefresh_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Install" Click="ServiceInstall_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Uninstall" Click="ServiceUninstall_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Start" Click="ServiceStart_Click" Width="90" Margin="0,0,8,0" />
+                  <Button Content="Stop" Click="ServiceStop_Click" Width="90" />
+                </StackPanel>
+              </StackPanel>
+            </controls:GroupBox>
+
+            <controls:GroupBox Header="Service settings">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="160" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Service name:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <TextBox Grid.Row="0" Grid.Column="1" Name="ServiceNameText" Margin="0,0,0,6" />
+
+                <TextBlock Grid.Row="1" Text="Description:" VerticalAlignment="Center" Margin="0,0,0,6" />
+                <TextBox Grid.Row="1" Grid.Column="1" Name="ServiceDescriptionText" Margin="0,0,0,6" />
+
+                <TextBlock Grid.Row="2" Text="Executable path:" VerticalAlignment="Center" />
+                <TextBox Grid.Row="2" Grid.Column="1" Name="ServiceExePathSettingText"
+                         PlaceholderText="Optional override; empty = resolve next to UI" />
+              </Grid>
+            </controls:GroupBox>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+
+    <controls:GroupBox Grid.Row="3" Header="Log" Margin="0,8,0,0" Padding="6">
+      <TextBox Name="LogTextBox"
+               AcceptsReturn="True"
+               TextWrapping="Wrap"
+               IsReadOnly="True"
+               BorderThickness="0"
+               Background="Transparent" />
+    </controls:GroupBox>
+  </Grid>
+</Window>
