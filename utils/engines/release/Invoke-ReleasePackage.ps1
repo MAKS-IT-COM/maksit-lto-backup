@@ -35,6 +35,7 @@ else {
 }
 
 $configuredPlugins = Get-ConfiguredPlugins -Settings $settings
+Initialize-RepoUtilsVaultSecrets -Settings $settings -Plugins $configuredPlugins
 
 $releaseBanner = if ($null -ne $releaseExtension) {
     $releaseExtension.StepBanner

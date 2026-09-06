@@ -213,6 +213,7 @@ function New-EngineContext {
         skipPublishPlugins = $false
         facts = [ordered]@{}
     }
+    $context = Copy-RepoUtilsSecretsEnvNamesToContext -Context $context -Settings $Settings
 
     $versionSource = Resolve-EngineContextVersion -Plugins $Plugins -Context $context -ScriptDir $ScriptDir
     $version = [string](Get-EngineState -Context $context -Name 'version' -Required)

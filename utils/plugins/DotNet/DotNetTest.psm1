@@ -7,12 +7,15 @@
 
 .DESCRIPTION
     Resolves one or more .NET test projects (`project` or `projects`), runs tests once
-    via TestRunner, then publishes metrics on the shared engine context for any later
+    via TestRunner (Microsoft Testing Platform + coverlet.MTP only — no VSTest /
+    coverlet.collector), then publishes metrics on the shared engine context for any later
     plugin: `qualityLineCoverage`, `testResult`, `coverageLineRate` / `coverageBranchRate` / `coverageMethodRate`,
     method counts, `testResultsDirectory`, `coverageCoberturaPaths`. Quality gates read
     those keys generically (not tied to this plugin by name). When `resultsDir` (or the
     multi-project default TestResults folder) is used, Cobertura output is kept on disk
     via TestRunner `-KeepResults` so repo-root `test-results/` persists after the run.
+    Product solutions must place `src/global.json` with `test.runner` =
+    Microsoft.Testing.Platform next to the `.sln`/`.slnx`.
 #>
 
 if (-not (Get-Command Import-PluginDependency -ErrorAction SilentlyContinue)) {

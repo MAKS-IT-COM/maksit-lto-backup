@@ -6,8 +6,7 @@
     Publishes npm workspace packages to the npm registry.
 
 .DESCRIPTION
-    Publishes packages in configured order using npmSecret (logical secret name).
-    Pass the token via an environment variable named like the configured npm secret (e.g. Npm).
+    Publishes packages in configured order using RepoUtilsSecrets slot Npm.
     Uses a temporary .npmrc in the workspace root.
 #>
 
@@ -85,6 +84,8 @@ function Invoke-Plugin {
         throw "NpmPublish plugin requires non-empty 'publishOrder' (workspace package names)."
     }
 
+    $npmSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'npmSecret' -PluginDisplayName 'NpmPublish' -Required
+
     Import-Module (Join-Path $PSScriptRoot 'NpmPackageSupport.psm1') -Force
     $useWorkspaces = Test-NpmWorkspacesConfigured -WorkspaceRoot $workspaceRoot
     if (-not $useWorkspaces -and $publishOrder.Count -gt 1) {
@@ -99,14 +100,9 @@ function Invoke-Plugin {
         return
     }
 
-    $npmSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'npmSecret'
-    if ([string]::IsNullOrWhiteSpace($npmSecret)) {
-        throw "NpmPublish plugin requires 'npmSecret' in scriptSettings.json (logical secret name, e.g. Npm)."
-    }
-
-    $npmToken = Get-SecretEnvironmentValue -Name $npmSecret
+    $npmToken = Get-RepoUtilsSecretSlot -Name $npmSecret -Settings $shared
     if ([string]::IsNullOrWhiteSpace($npmToken)) {
-        throw "npm API key is not set. Set environment variable '$npmSecret'."
+        throw "npm API key is not set. Set RepoUtilsSecrets slot '$npmSecret' (npmSecret)."
     }
 
     $registryHost = ([uri]$registry).Host

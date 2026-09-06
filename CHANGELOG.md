@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-09-06
+
+Still alpha versus **0.1.0-alpha.1**. Emulator and build validated; physical Windows/Linux tape, changer, and Linux SMB staging are not hardware-proven yet. Not a production-ready line.
+
+### Added
+
+- Desktop packaging as sibling GitHub assets: Windows setup `maksit-lto-backup-{version}.exe` (Avalonia UI) and `maksit-lto-backup-{version}.flatpak` (Avalonia UI), alongside the portable `maksit-lto-backup-{version}.zip` (win-x64 console, Avalonia UI, and Worker). The installer and Flatpak are not packed inside the zip. On Windows the Flatpak bundle is built via WSL Debian.
+- Faceted LTO cartridge app icon (not the brand M).
+
+### Changed
+
+- Avalonia UI is **MVVM** (`CommunityToolkit.Mvvm`): operations, settings, monitor, and service controls live in `MainViewModel`; `MainWindow` is a thin view.
+- Configuration (console, UI, Worker) is written to `%AppData%/MaksIT/LTO Backup/settings.json` (WiX `installFolderName`). The shipped `configuration.json` next to the exe is seed-only.
+- Dark theme uses the MAKS.IT origami blues (`#33A5CF` / `#006199`).
+- Synced RepoUtils utils: ContainerRegistry JSON catalog (PascalCase Harbor / InCluster keys).
+
 ## [0.1.0-alpha.1] - 2026-08-21
 
 Alpha preview versus last published **0.0.2** (HEAD was console-only Windows on **net8.0**). Emulator and build validated; physical Windows/Linux tape, changer, and Linux SMB staging are not hardware-proven yet. Not a production-ready line.
@@ -46,3 +62,4 @@ Alpha preview versus last published **0.0.2** (HEAD was console-only Windows on 
 - AES-GCM encrypted descriptors, checksum verification, cartridge EEPROM (MAM) read/write.
 - Dependency injection, console and file logging.
 - Build scripts and contributor docs (`README.md`, `CONTRIBUTING.md`, `LICENSE.md`).
+

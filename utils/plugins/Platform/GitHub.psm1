@@ -101,7 +101,6 @@ function Invoke-Plugin {
 
     $pluginSettings = $Settings
     $sharedSettings = $Settings.context
-    $githubSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'githubSecret'
     $configuredRepository = $pluginSettings.repository
     $releaseNotesFileSetting = $pluginSettings.releaseNotesFile
     $releaseTitlePatternSetting = $pluginSettings.releaseTitlePattern
@@ -112,6 +111,7 @@ function Invoke-Plugin {
     $releaseAssetPaths = @()
 
     $dryRun = Test-PluginSkipsRemoteMutation -Plugin $pluginSettings -SharedSettings $sharedSettings
+    $githubSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'githubSecret' -PluginDisplayName 'GitHub' -Required
 
     if ([string]::IsNullOrWhiteSpace($releaseNotesFileSetting)) {
         throw "GitHub plugin requires 'releaseNotesFile' in scriptSettings.json."
@@ -138,13 +138,9 @@ function Invoke-Plugin {
 
     Assert-Command gh
 
-    if ([string]::IsNullOrWhiteSpace($githubSecret)) {
-        throw "GitHub plugin requires 'githubSecret' in scriptSettings.json (logical secret name, e.g. GitHub)."
-    }
-
-    $ghToken = Get-SecretEnvironmentValue -Name $githubSecret
+    $ghToken = Get-RepoUtilsSecretSlot -Name $githubSecret -Settings $sharedSettings
     if ([string]::IsNullOrWhiteSpace($ghToken)) {
-        throw "GitHub token is not set. Set environment variable '$githubSecret'."
+        throw "GitHub token is not set. Set RepoUtilsSecrets slot '$githubSecret' (githubSecret)."
     }
 
     if ([string]::IsNullOrWhiteSpace($releaseNotesFileSetting)) {
@@ -235,7 +231,7 @@ function Invoke-Plugin {
                 $authStatus | ForEach-Object { Write-Log -Level "WARN" -Message "    $_" }
             }
 
-            throw "GitHub CLI authentication failed for repository '$repo'. Ensure secret '$githubSecret' is valid and has access to this repository."
+            throw "GitHub CLI authentication failed for repository '$repo'. Ensure RepoUtilsSecrets slot '$githubSecret' is valid and has access to this repository."
         }
 
         Write-Log -Level "OK" -Message "  GitHub token validated for repository: $($authOutput | Select-Object -First 1)"

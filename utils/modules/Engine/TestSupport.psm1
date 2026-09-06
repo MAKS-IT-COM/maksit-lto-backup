@@ -38,6 +38,7 @@ function New-EngineContext {
         utilsDir = $SrcDir
         facts = [ordered]@{}
     }
+    $context = Copy-RepoUtilsSecretsEnvNamesToContext -Context $context -Settings $Settings
 
     $expandContext = Get-Command Expand-ExtensionEngineContext -ErrorAction SilentlyContinue
     if ($expandContext) {

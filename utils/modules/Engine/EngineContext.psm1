@@ -321,6 +321,37 @@ function Get-EngineState {
     return $null
 }
 
+function Add-ReleaseAssetPaths {
+    param(
+        [Parameter(Mandatory = $true)]
+        [psobject]$Context,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]]$Path
+    )
+
+    $list = [System.Collections.Generic.List[string]]::new()
+    $existing = Get-EngineFact -Context $Context -Namespace 'release' -Name 'assetPaths' -Default @() -LegacyProperty @('releaseAssetPaths')
+    foreach ($item in @($existing)) {
+        $value = [string]$item
+        if (-not [string]::IsNullOrWhiteSpace($value) -and -not $list.Contains($value)) {
+            $list.Add($value)
+        }
+    }
+
+    foreach ($item in @($Path)) {
+        $value = [string]$item
+        if ([string]::IsNullOrWhiteSpace($value) -or $list.Contains($value)) {
+            continue
+        }
+
+        $list.Add($value)
+    }
+
+    Set-EngineFact -Context $Context -Namespace 'release' -Name 'assetPaths' -Value @($list) -Overwrite Replace -LegacyProperty 'releaseAssetPaths'
+}
+
 Export-ModuleMember -Function `
     Resolve-RelativePaths, `
     Initialize-EngineFactsBag, `
@@ -329,4 +360,5 @@ Export-ModuleMember -Function `
     Test-EngineFact, `
     Set-EngineState, `
     Add-EnginePublishCompletion, `
+    Add-ReleaseAssetPaths, `
     Get-EngineState

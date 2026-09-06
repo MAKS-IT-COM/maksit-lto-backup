@@ -29,10 +29,10 @@ function Invoke-Plugin {
 
     $pluginSettings = $Settings
     $sharedSettings = $Settings.context
-    $nugetSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'nugetSecret'
     $packageFile = $sharedSettings.packageFile
 
     $dryRun = Test-PluginSkipsRemoteMutation -Plugin $pluginSettings -SharedSettings $sharedSettings
+    $nugetSecret = Resolve-PluginSecretName -PluginSettings $pluginSettings -PropertyName 'nugetSecret' -PluginDisplayName 'DotNetNuGet' -Required
 
     Assert-Command dotnet
 
@@ -52,13 +52,9 @@ function Invoke-Plugin {
         return
     }
 
-    if ([string]::IsNullOrWhiteSpace($nugetSecret)) {
-        throw "DotNetNuGet plugin requires 'nugetSecret' in scriptSettings.json (logical secret name, e.g. NuGet)."
-    }
-
-    $nugetKey = Get-SecretEnvironmentValue -Name $nugetSecret
+    $nugetKey = Get-RepoUtilsSecretSlot -Name $nugetSecret -Settings $sharedSettings
     if ([string]::IsNullOrWhiteSpace($nugetKey)) {
-        throw "NuGet API key is not set. Set environment variable '$nugetSecret'."
+        throw "NuGet API key is not set. Set RepoUtilsSecrets slot '$nugetSecret' (nugetSecret)."
     }
 
     $nugetSource = if ([string]::IsNullOrWhiteSpace($pluginSettings.source)) {

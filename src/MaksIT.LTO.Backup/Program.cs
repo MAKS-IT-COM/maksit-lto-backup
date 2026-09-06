@@ -10,15 +10,17 @@ namespace MaksIT.LTO.Backup;
 public static class Program {
   public static int Main(string[] args) {
     var basePath = AppContext.BaseDirectory;
-    var configurationPath = Path.Combine(basePath, "configuration.json");
+    var userSettings = UserSettingsPath.Get(ConfigurationFileService.ProductFolder);
 
     var host = Host.CreateDefaultBuilder()
       .ConfigureAppConfiguration(builder => {
         builder.SetBasePath(basePath);
         builder.AddJsonFile("configuration.json", optional: false, reloadOnChange: true);
+        if (File.Exists(userSettings))
+          builder.AddJsonFile(userSettings, optional: true, reloadOnChange: true);
       })
       .ConfigureServices((_, services) => {
-        services.AddSingleton(_ => new ConfigurationFileService(configurationPath));
+        services.AddSingleton(_ => new ConfigurationFileService());
         services.AddSingleton<BackupOrchestrator>();
         services.AddSingleton<LibraryOrchestrator>();
         services.AddSingleton<ScheduledBackupRunner>();

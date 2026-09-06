@@ -10,8 +10,7 @@ namespace MaksIT.LTO.Backup.Service;
 internal static class Program {
   public static int Main(string[] args) {
     var basePath = AppContext.BaseDirectory;
-    var configurationPath = Path.Combine(basePath, "configuration.json");
-    var configurationFileService = new ConfigurationFileService(configurationPath);
+    var configurationFileService = new ConfigurationFileService();
     var service = configurationFileService.Current.Service;
     var serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
       ? "MaksIT.LTO.Backup"
@@ -90,7 +89,7 @@ internal static class Program {
         --help, -h       Show this help message
 
       Service Name: {serviceName}
-      Config File:  configuration.json (next to the executable)
+      Config File:  {UserSettingsPath.Get(ConfigurationFileService.ProductFolder)}
 
       Note: Install/uninstall typically require administrator / root privileges.
       Scheduling runs only when Topology = TapeLibrary.

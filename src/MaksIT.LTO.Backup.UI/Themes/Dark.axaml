@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:MaksIT.LTO.Backup.UI.Controls">
   <Style Selector="Window">
-    <Setter Property="Background" Value="#1e2124" />
-    <Setter Property="Foreground" Value="#e6e6e6" />
+    <Setter Property="Background" Value="#0E1620" />
+    <Setter Property="Foreground" Value="#E8F4FC" />
     <Setter Property="FontFamily" Value="Segoe UI, Ubuntu, sans-serif" />
     <Setter Property="FontSize" Value="13" />
   </Style>
@@ -23,7 +23,7 @@
     <Setter Property="MinHeight" Value="28" />
   </Style>
   <Style Selector="ListBoxItem:selected">
-    <Setter Property="Background" Value="#3d5afe" />
+    <Setter Property="Background" Value="#006199" />
   </Style>
   <Style Selector="DataGrid">
     <Setter Property="Background" Value="#25282c" />
@@ -69,7 +69,7 @@
                               Content="{TemplateBinding Header}"
                               ContentTemplate="{TemplateBinding HeaderTemplate}"
                               TextElement.FontWeight="SemiBold"
-                              TextElement.Foreground="#e6e6e6" />
+                              TextElement.Foreground="#E8F4FC" />
           </Border>
         </Grid>
       </ControlTemplate>

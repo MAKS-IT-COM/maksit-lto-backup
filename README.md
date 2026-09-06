@@ -1,8 +1,8 @@
 # MaksIT.LTO.Backup
 
-![Line Coverage](https://img.shields.io/badge/Line%20Coverage-39.2%25-yellow)
-![Branch Coverage](https://img.shields.io/badge/Branch%20Coverage-28.4%25-yellow)
-![Method Coverage](https://img.shields.io/badge/Method%20Coverage-49.5%25-yellowgreen)
+![Line Coverage](https://img.shields.io/badge/Line%20Coverage-39.3%25-yellow)
+![Branch Coverage](https://img.shields.io/badge/Branch%20Coverage-28.7%25-yellow)
+![Method Coverage](https://img.shields.io/badge/Method%20Coverage-49.7%25-yellowgreen)
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![License](https://img.shields.io/badge/License-GPLv2-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-0078D6)
@@ -14,7 +14,7 @@ See [LICENSE.md](LICENSE.md) (GPLv2). Changes: [CHANGELOG.md](CHANGELOG.md). Con
 | Host | Project | Role |
 |------|---------|------|
 | Console | `MaksIT.LTO.Backup` | Interactive menu / `backup --name` CLI |
-| Avalonia | `MaksIT.LTO.Backup.UI` | Code-behind operations UI (Windows + Linux; no MVVM). SimpleTheme **Dark** styles aligned with Cluster Console |
+| Avalonia | `MaksIT.LTO.Backup.UI` | MVVM operations UI (Windows + Linux; CommunityToolkit.Mvvm) |
 | Worker | `MaksIT.LTO.Backup.Service` | Scheduled library backups (Windows service / systemd) |
 
 Device access modes:
@@ -22,7 +22,7 @@ Device access modes:
 - **Physical** — real drive/library on **Windows** (`\\.\Tape0`, `\\.\Changer0`; admin) or **Linux** (`/dev/nst0`, `/dev/sg*`; `tape`/`disk` group)
 - **Emulated** — file-backed drive + library (no hardware; primary CI / no-hardware path)
 
-> Current line is **`0.1.0-alpha.1`** (prerelease, not production-ready). Emulator coverage is the primary validation path; physical tape/changer and Linux SMB are not hardware-proven yet. Use at your own risk.
+> Current line is **`0.1.0-alpha.2`** (prerelease, not production-ready). Emulator coverage is the primary validation path; physical tape/changer and Linux SMB are not hardware-proven yet. Use at your own risk.
 
 ---
 
@@ -104,13 +104,14 @@ Install/uninstall typically require administrator (Windows) or root (Linux syste
 
 ## Configuration
 
-One shared model and one shared JSON for the whole solution:
+One shared model for the whole solution. Seed JSON ships next to each host; runtime writes go to AppData so Program Files does not need elevation.
 
 - Model: [`src/MaksIT.LTO.Backup.Shared/Models/Configuration.cs`](src/MaksIT.LTO.Backup.Shared/Models/Configuration.cs)
-- File: [`src/MaksIT.LTO.Backup.Shared/configuration.json`](src/MaksIT.LTO.Backup.Shared/configuration.json)
+- Seed: [`src/MaksIT.LTO.Backup.Shared/configuration.json`](src/MaksIT.LTO.Backup.Shared/configuration.json) (copied next to the exe, never written)
+- Runtime: `%AppData%/MaksIT/LTO Backup/settings.json` (same folder name as WiX: `Program Files\MaksIT\LTO Backup`)
 - Loader / workflows: `ConfigurationFileService`, `BackupOrchestrator`, `LibraryOrchestrator` in `MaksIT.LTO.Backup.Shared`
 
-Both console and Avalonia UI link this file into their output. Edit the Shared copy only, or use the UI **Settings** tab and click **Save configuration**.
+Edit the Shared seed for factory defaults, or use the UI **Settings** tab and click **Save configuration**.
 
 `DeviceMode` selects the backend (`Physical` / `Emulated`).  
 `Topology` selects how hardware is used:
@@ -196,7 +197,7 @@ Avalonia UI (Windows or Linux):
 dotnet run --project .\MaksIT.LTO.Backup.UI
 ```
 
-Publish hosts (or use RepoUtils release below):
+Prefer RepoUtils for a GitHub release (`utils\Invoke-ReleasePackage.bat`). Assets are siblings: portable `maksit-lto-backup-{version}.zip` (win-x64 console, Avalonia UI, Worker), Windows setup `maksit-lto-backup-{version}.exe` (Avalonia UI), and `maksit-lto-backup-{version}.flatpak` (Avalonia UI). The installer and Flatpak are not inside the zip. Manual publish:
 
 ```powershell
 cd src
@@ -233,6 +234,8 @@ Vendored under `utils/` (from MaksIT RepoUtils community):
 |--------|--------|
 | Test | `utils\Invoke-TestEngine.bat` |
 | Release | `utils\Invoke-ReleasePackage.bat` |
+
+GitHub assets are siblings: portable `maksit-lto-backup-{version}.zip` (win-x64), Windows setup exe (Avalonia UI), and Flatpak (Avalonia UI). The installer and Flatpak are not inside the zip. On Windows the Flatpak bundle is built via WSL Debian.
 
 Settings:
 

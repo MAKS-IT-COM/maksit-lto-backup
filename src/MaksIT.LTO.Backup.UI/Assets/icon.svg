@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="LTO Backup">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#33A5CF"/>
+      <stop offset="1" stop-color="#002A6A"/>
+    </linearGradient>
+    <linearGradient id="cart" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8ED6F0"/>
+      <stop offset="1" stop-color="#006199"/>
+    </linearGradient>
+    <clipPath id="icon">
+      <rect width="256" height="256" rx="57" ry="57"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#icon)">
+    <rect width="256" height="256" fill="url(#bg)"/>
+    <ellipse cx="128" cy="8" rx="150" ry="88" fill="#ffffff" opacity="0.16"/>
+    <rect x="58" y="72" width="140" height="112" rx="18" fill="url(#cart)"/>
+    <circle cx="128" cy="128" r="28" fill="#E8F4FC"/>
+    <circle cx="128" cy="128" r="12" fill="#003D7A"/>
+    <rect x="188" y="118" width="36" height="14" rx="4" fill="#33A5CF"/>
+  </g>
+</svg>

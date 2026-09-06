@@ -15,6 +15,7 @@ function Import-EngineModules {
         (Join-Path $modulesDir 'ScriptConfig.psm1'),
         (Join-Path $modulesDir 'Logging.psm1'),
         (Join-Path $engineModuleDir 'PluginSupport.psm1'),
+        (Join-Path $engineModuleDir 'VaultSupport.psm1'),
         (Join-Path $engineModuleDir 'EngineContext.psm1')
     )
 

@@ -2,6 +2,8 @@
   "$schema": "https://json-schema.org/draft-07/schema",
   "title": "LTO Backup Release Script Settings",
   "description": "RepoUtils release pipeline for maksit-lto-backup application binaries.",
+  "repoUtilsSecretsShared": "RepoUtilsSecretsShared",
+  "repoUtilsSecrets": "RepoUtilsSecrets",
   "plugins": [
     {
       "name": "DotNetReleaseVersion",
@@ -67,7 +69,7 @@
       "name": "GitHub",
       "stageLabel": "release",
       "enabled": true,
-      "githubSecret": "GitHub",
+      "githubSecret": "GitClone",
       "repository": "https://github.com/MAKS-IT-COM/maksit-lto-backup",
       "releaseNotesFile": "..\\..\\..\\CHANGELOG.md",
       "releaseTitlePattern": "Release {version}"

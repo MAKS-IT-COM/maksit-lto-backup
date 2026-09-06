@@ -19,7 +19,7 @@ dotnet build MaksIT.LTO.slnx
 
 ### Configuration
 
-Edit the shared file only: [`src/MaksIT.LTO.Backup.Shared/configuration.json`](src/MaksIT.LTO.Backup.Shared/configuration.json). Console, Avalonia UI, and Worker link it into their outputs. See [README.md](README.md).
+Edit the shared seed only: [`src/MaksIT.LTO.Backup.Shared/configuration.json`](src/MaksIT.LTO.Backup.Shared/configuration.json). Console, Avalonia UI, and Worker link it into their outputs. Runtime saves go to `%AppData%/MaksIT/LTO Backup/settings.json`. See [README.md](README.md).
 
 ### Tests
 
@@ -42,7 +42,7 @@ Coverage shields at the top of `README.md` are maintained by the **CoverageBadge
 
 1. Update [CHANGELOG.md](CHANGELOG.md) and bump `<Version>` in [`Directory.Build.props`](Directory.Build.props) (`X.Y.Z` or SemVer prerelease such as `0.1.0-alpha.1`).
 2. Commit on `main`, tag `v{version}` on HEAD (e.g. `v0.1.0-alpha.1`). GitHub marks hyphenated versions as prerelease.
-3. Run `utils\Invoke-ReleasePackage.bat`.
+3. Run `utils\Invoke-ReleasePackage.bat`. GitHub assets are the portable zip (win-x64), Windows setup exe (Avalonia UI), and Flatpak (Avalonia UI).
 
 ## Commit format
 
