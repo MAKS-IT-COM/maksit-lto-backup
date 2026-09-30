@@ -43,13 +43,66 @@
         "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\MaksIT.LTO.Backup.UI.csproj",
         "..\\..\\..\\src\\MaksIT.LTO.Backup.Service\\MaksIT.LTO.Backup.Service.csproj"
       ],
-      "artifactsDir": "..\\..\\..\\releases"
+      "artifactsDir": "..\\..\\..\\releases",
+      "runtimeIdentifiers": [
+        "win-x64",
+        "linux-x64"
+      ],
+      "selfContained": true,
+      "publishSingleFile": false
     },
     {
       "name": "DotNetCreateArchive",
       "stageLabel": "build",
       "enabled": true,
-      "zipNamePattern": "maksit-lto-backup-{version}.zip"
+      "zipNamePattern": "maksit-lto-backup-{version}.zip",
+      "portableRuntimeIdentifier": "win-x64"
+    },
+    {
+      "name": "WindowsInstaller",
+      "stageLabel": "build",
+      "enabled": true,
+      "appName": "MaksIT LTO Backup",
+      "manufacturer": "MaksIT",
+      "installFolderName": "LTO Backup",
+      "upgradeCode": "b3f7c2a1-8e4d-4f90-9c1b-6a2e5d8f3b10",
+      "executableName": "MaksIT.LTO.Backup.UI.exe",
+      "runtimeIdentifier": "win-x64",
+      "publishDir": "..\\..\\..\\releases\\MaksIT.LTO.Backup.UI\\win-x64",
+      "installScope": "perMachine",
+      "iconPath": "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\Assets\\icon.ico",
+      "exeNamePattern": "maksit-lto-backup-{version}.exe"
+    },
+    {
+      "name": "FlatpakPack",
+      "stageLabel": "build",
+      "enabled": true,
+      "appId": "com.maks_it.ltobackup",
+      "appName": "MaksIT LTO Backup",
+      "command": "maksit-lto-backup",
+      "executableName": "MaksIT.LTO.Backup.UI",
+      "runtimeIdentifier": "linux-x64",
+      "publishDir": "..\\..\\..\\releases\\MaksIT.LTO.Backup.UI\\linux-x64",
+      "summary": "LTO tape backup and restore",
+      "description": "Desktop UI for LTO tape backup and restore. Inventory, backup, and restore jobs for a tape drive or library.",
+      "projectLicense": "GPL-2.0",
+      "categories": "Utility;Archiving;",
+      "iconPath": "..\\..\\..\\src\\MaksIT.LTO.Backup.UI\\Assets\\icon.png",
+      "metainfoPath": "..\\..\\..\\data\\com.maks_it.ltobackup.metainfo.xml",
+      "desktopPath": "..\\..\\..\\data\\com.maks_it.ltobackup.desktop",
+      "finishArgs": [
+        "--share=ipc",
+        "--share=network",
+        "--socket=wayland",
+        "--socket=x11",
+        "--device=all",
+        "--filesystem=home"
+      ],
+      "bundleNamePattern": "maksit-lto-backup-{version}.flatpak",
+      "buildBundle": true,
+      "attachSourceZip": false,
+      "wslDistro": "Debian",
+      "whenBuilderMissing": "skip"
     },
     {
       "name": "ReleasePublishGuard",
@@ -72,7 +125,8 @@
       "githubSecret": "GitClone",
       "repository": "https://github.com/MAKS-IT-COM/maksit-lto-backup",
       "releaseNotesFile": "..\\..\\..\\CHANGELOG.md",
-      "releaseTitlePattern": "Release {version}"
+      "releaseTitlePattern": "Release {version}",
+      "requireReleaseAssets": true
     },
     {
       "name": "DotNetNuGet",
@@ -98,7 +152,9 @@
         "*"
       ],
       "excludePatterns": [
-        "*.zip"
+        "*.zip",
+        "*.exe",
+        "*.flatpak"
       ]
     }
   ]

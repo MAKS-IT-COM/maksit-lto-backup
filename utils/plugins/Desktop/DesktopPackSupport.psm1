@@ -323,7 +323,32 @@ function New-WixPackageXml {
     $desktopProp = $xml.CreateElement('Property', $ns)
     $null = $desktopProp.SetAttribute('Id', 'INSTALLDESKTOPSHORTCUT')
     $null = $desktopProp.SetAttribute('Value', '0')
+    $null = $desktopProp.SetAttribute('Secure', 'yes')
     $null = $package.AppendChild($desktopProp)
+
+    # Present when a previous install wrote the desktop shortcut marker.
+    # Burn also searches HKCU as the user and passes DESKTOPSHORTCUTFOUND,
+    # because a per-machine execute sequence runs as SYSTEM.
+    $foundProp = $xml.CreateElement('Property', $ns)
+    $null = $foundProp.SetAttribute('Id', 'DESKTOPSHORTCUTFOUND')
+    $null = $foundProp.SetAttribute('Secure', 'yes')
+    $foundSearch = $xml.CreateElement('RegistrySearch', $ns)
+    $null = $foundSearch.SetAttribute('Id', 'DesktopShortcutFoundSearch')
+    $null = $foundSearch.SetAttribute('Root', 'HKCU')
+    $null = $foundSearch.SetAttribute('Key', "Software\$Manufacturer\$AppName")
+    $null = $foundSearch.SetAttribute('Name', 'desktop')
+    $null = $foundSearch.SetAttribute('Type', 'raw')
+    $null = $foundProp.AppendChild($foundSearch)
+    $null = $package.AppendChild($foundProp)
+
+    # Checkbox off on reinstall must not drop an icon that is already there.
+    # Major upgrade removes the previous shortcut; this installs that one again.
+    $keepShortcut = $xml.CreateElement('SetProperty', $ns)
+    $null = $keepShortcut.SetAttribute('Id', 'INSTALLDESKTOPSHORTCUT')
+    $null = $keepShortcut.SetAttribute('Value', '1')
+    $null = $keepShortcut.SetAttribute('Before', 'CostFinalize')
+    $null = $keepShortcut.SetAttribute('Condition', 'DESKTOPSHORTCUTFOUND = "1"')
+    $null = $package.AppendChild($keepShortcut)
 
     $productFolder = Get-DesktopInstallFolderName `
         -AppName $AppName `
@@ -449,7 +474,8 @@ function New-WixPackageXml {
     $desktop = $xml.CreateElement('Component', $ns)
     $null = $desktop.SetAttribute('Id', 'DesktopShortcut')
     $null = $desktop.SetAttribute('Directory', 'DesktopFolder')
-    $null = $desktop.SetAttribute('Guid', '*')
+    $shortcutGuid = Get-DesktopShortcutComponentGuid -Manufacturer $Manufacturer -AppName $AppName
+    $null = $desktop.SetAttribute('Guid', $shortcutGuid.ToString('D'))
     $null = $desktop.SetAttribute('Condition', 'INSTALLDESKTOPSHORTCUT = 1')
     $desktopShortcut = $xml.CreateElement('Shortcut', $ns)
     $null = $desktopShortcut.SetAttribute('Id', 'AppDesktopShortcut')
@@ -461,6 +487,26 @@ function New-WixPackageXml {
     }
 
     $null = $desktop.AppendChild($desktopShortcut)
+    # Same file name is replaced. A second ".lnk" (and the "(2)" copy) is removed
+    # before CreateShortcuts so a checked box does not leave two desktop icons.
+    $cleanupNames = [System.Collections.Generic.List[string]]::new()
+    $cleanupNames.Add($productFolder)
+    if (-not $cleanupNames.Contains($AppName)) {
+        $cleanupNames.Add($AppName)
+    }
+
+    $cleanupIndex = 0
+    foreach ($shortcutName in $cleanupNames) {
+        foreach ($suffix in @('', ' (2)')) {
+            $cleanupIndex++
+            $removeLnk = $xml.CreateElement('RemoveFile', $ns)
+            $null = $removeLnk.SetAttribute('Id', "DesktopShortcutCleanup$cleanupIndex")
+            $null = $removeLnk.SetAttribute('Name', "$shortcutName$suffix.lnk")
+            $null = $removeLnk.SetAttribute('On', 'install')
+            $null = $desktop.AppendChild($removeLnk)
+        }
+    }
+
     $desktopReg = $xml.CreateElement('RegistryValue', $ns)
     $null = $desktopReg.SetAttribute('Root', 'HKCU')
     $null = $desktopReg.SetAttribute('Key', "Software\$Manufacturer\$AppName")
@@ -496,9 +542,10 @@ function Get-DefaultFlatpakFinishArgs {
     return @(
         '--share=ipc',
         '--share=network',
-        '--socket=fallback-x11',
+        '--socket=x11',
         '--socket=wayland',
         '--device=dri',
+        '--socket=pulseaudio',
         '--filesystem=home'
     )
 }
@@ -524,10 +571,116 @@ function New-FlatpakDesktopEntry {
         "Name=$AppName",
         "Exec=$Command",
         "Icon=$AppId",
+        "StartupWMClass=$AppId",
+        'StartupNotify=true',
         'Terminal=false',
         "Categories=$Categories"
     )
     return (($lines -join "`n") + "`n")
+}
+
+function Copy-FlatpakHicolorIcons {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$AppId,
+
+        [Parameter(Mandatory = $true)]
+        [string]$HicolorRoot,
+
+        [Parameter(Mandatory = $false)]
+        [string]$IconPath,
+
+        [Parameter(Mandatory = $false)]
+        [string]$SvgIconPath
+    )
+
+    $pngSource = $null
+    $svgSource = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($IconPath) -and (Test-Path -LiteralPath $IconPath -PathType Leaf)) {
+        $ext = [System.IO.Path]::GetExtension($IconPath)
+        if ($ext -ieq '.png') {
+            $pngSource = $IconPath
+        }
+        elseif ($ext -ieq '.svg') {
+            $svgSource = $IconPath
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($SvgIconPath) -and (Test-Path -LiteralPath $SvgIconPath -PathType Leaf)) {
+        $svgSource = $SvgIconPath
+    }
+
+    if ([string]::IsNullOrWhiteSpace($svgSource) -and -not [string]::IsNullOrWhiteSpace($pngSource)) {
+        $siblingSvg = [System.IO.Path]::ChangeExtension($pngSource, '.svg')
+        if (Test-Path -LiteralPath $siblingSvg -PathType Leaf) {
+            $svgSource = $siblingSvg
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($pngSource) -and -not [string]::IsNullOrWhiteSpace($svgSource)) {
+        $siblingPng = [System.IO.Path]::ChangeExtension($svgSource, '.png')
+        if (Test-Path -LiteralPath $siblingPng -PathType Leaf) {
+            $pngSource = $siblingPng
+        }
+    }
+
+    $installed = $false
+
+    if (-not [string]::IsNullOrWhiteSpace($pngSource)) {
+        foreach ($size in @('48x48', '64x64', '128x128', '256x256')) {
+            $pngDir = Join-Path $HicolorRoot "$size\apps"
+            New-Item -ItemType Directory -Path $pngDir -Force | Out-Null
+            Copy-Item -LiteralPath $pngSource -Destination (Join-Path $pngDir "$AppId.png") -Force
+        }
+
+        $installed = $true
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($svgSource)) {
+        $svgDir = Join-Path $HicolorRoot 'scalable\apps'
+        New-Item -ItemType Directory -Path $svgDir -Force | Out-Null
+        Copy-Item -LiteralPath $svgSource -Destination (Join-Path $svgDir "$AppId.svg") -Force
+        $installed = $true
+    }
+
+    return $installed
+}
+
+function ConvertTo-FlatpakMetainfoDescriptionXml {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$AppName,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]$Summary,
+
+        [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
+        [string]$Description
+    )
+
+    $text = $Description
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        $text = "$AppName is a desktop application. $Summary".Trim()
+    }
+
+    $paragraphs = [System.Collections.Generic.List[string]]::new()
+    foreach ($chunk in @($text -split '(\r?\n){2,}')) {
+        $trimmed = $chunk.Trim()
+        if ([string]::IsNullOrWhiteSpace($trimmed)) {
+            continue
+        }
+
+        $paragraphs.Add('    <p>' + [System.Security.SecurityElement]::Escape($trimmed) + '</p>')
+    }
+
+    if ($paragraphs.Count -eq 0) {
+        $paragraphs.Add('    <p>' + [System.Security.SecurityElement]::Escape("$AppName is a desktop application.") + '</p>')
+    }
+
+    return ($paragraphs -join "`n")
 }
 
 function New-FlatpakMetainfoXml {
@@ -542,25 +695,123 @@ function New-FlatpakMetainfoXml {
         [string]$Summary,
 
         [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
+        [string]$Description = '',
+
+        [Parameter(Mandatory = $false)]
         [string]$ProjectLicense = 'MIT',
 
         [Parameter(Mandatory = $false)]
-        [string]$MetadataLicense = 'CC0-1.0'
+        [string]$MetadataLicense = 'CC0-1.0',
+
+        [Parameter(Mandatory = $false)]
+        [string]$Version = ''
     )
 
     $escapedName = [System.Security.SecurityElement]::Escape($AppName)
     $escapedSummary = [System.Security.SecurityElement]::Escape($Summary)
-    return @"
+    $descriptionXml = ConvertTo-FlatpakMetainfoDescriptionXml -AppName $AppName -Summary $Summary -Description $Description
+    $xml = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>$AppId</id>
   <name>$escapedName</name>
   <summary>$escapedSummary</summary>
+  <description>
+$descriptionXml
+  </description>
   <launchable type="desktop-id">$AppId.desktop</launchable>
   <metadata_license>$MetadataLicense</metadata_license>
   <project_license>$ProjectLicense</project_license>
 </component>
 "@
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        return $xml
+    }
+
+    return Set-FlatpakMetainfoRelease -XmlText $xml -Version $Version
+}
+
+function Set-FlatpakMetainfoRelease {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$XmlText,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Version,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Date = ''
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        throw "Set-FlatpakMetainfoRelease requires Version."
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Date)) {
+        $Date = [datetime]::UtcNow.ToString('yyyy-MM-dd')
+    }
+
+    $doc = New-Object System.Xml.XmlDocument
+    $doc.PreserveWhitespace = $false
+    $doc.LoadXml($XmlText)
+    $component = $doc.SelectSingleNode('/component')
+    if ($null -eq $component) {
+        throw "Flatpak metainfo has no <component> root."
+    }
+
+    $releases = $component.SelectSingleNode('releases')
+    if ($null -eq $releases) {
+        $releases = $doc.CreateElement('releases')
+        $null = $component.AppendChild($releases)
+    }
+
+    $match = $null
+    foreach ($node in @($releases.SelectNodes('release'))) {
+        if ([string]$node.GetAttribute('version') -eq $Version) {
+            $match = $node
+            break
+        }
+    }
+
+    $first = $releases.SelectSingleNode('release')
+    if ($null -ne $match) {
+        $match.SetAttribute('date', $Date)
+        if (-not [object]::ReferenceEquals($match, $first)) {
+            $null = $releases.InsertBefore($match, $first)
+        }
+    }
+    else {
+        $release = $doc.CreateElement('release')
+        $release.SetAttribute('version', $Version)
+        $release.SetAttribute('date', $Date)
+        if ($null -eq $first) {
+            $null = $releases.AppendChild($release)
+        }
+        else {
+            $null = $releases.InsertBefore($release, $first)
+        }
+    }
+
+    $settings = New-Object System.Xml.XmlWriterSettings
+    $settings.Indent = $true
+    $settings.OmitXmlDeclaration = $false
+    $settings.Encoding = [System.Text.UTF8Encoding]::new($false)
+    $stream = New-Object System.IO.MemoryStream
+    try {
+        $writer = [System.Xml.XmlWriter]::Create($stream, $settings)
+        try {
+            $doc.Save($writer)
+        }
+        finally {
+            $writer.Dispose()
+        }
+
+        return [System.Text.Encoding]::UTF8.GetString($stream.ToArray())
+    }
+    finally {
+        $stream.Dispose()
+    }
 }
 
 function New-FlatpakManifestObject {
@@ -597,8 +848,8 @@ function New-FlatpakManifestObject {
     if ($null -eq $BuildCommands -or $BuildCommands.Count -eq 0) {
         $BuildCommands = @(
             'mkdir -p /app/lib /app/share',
-            'cp -a lib /app/lib',
-            'cp -a share /app/share',
+            'cp -a lib/. /app/lib/',
+            'cp -a share/. /app/share/',
             "install -Dm755 bin/$Command /app/bin/$Command",
             "chmod +x /app/lib/$ModuleName/$Command"
         )
@@ -636,7 +887,15 @@ function New-FlatpakLaunchScript {
         [string]$ExecutableFileName
     )
 
-    return "#!/bin/sh`nexec /app/lib/$ModuleName/$ExecutableFileName `"`$@`"`n"
+    $lib = "/app/lib/$ModuleName"
+    return @"
+#!/bin/sh
+LIB='$lib'
+if [ -f "`$LIB/flatpak-native.env" ]; then
+  . "`$LIB/flatpak-native.env"
+fi
+exec `$LIB/$ExecutableFileName "`$`@"
+"@
 }
 
 function Assert-FlatpakAppId {
@@ -659,6 +918,27 @@ function Assert-FlatpakAppId {
             throw "Flatpak appId '$AppId' is invalid: Only last name segment can contain '-'. $hint"
         }
     }
+}
+
+function Get-DesktopShortcutComponentGuid {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Manufacturer,
+
+        [Parameter(Mandatory = $true)]
+        [string]$AppName
+    )
+
+    $identity = "maksit-desktop-shortcut|$Manufacturer|$AppName"
+    $md5 = [System.Security.Cryptography.MD5]::Create()
+    try {
+        $hash = $md5.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($identity))
+    }
+    finally {
+        $md5.Dispose()
+    }
+
+    return [guid]::new($hash)
 }
 
 function Get-DerivedBundleUpgradeCode {
@@ -983,15 +1263,18 @@ function New-WixBundleXml {
         $folderRoot + $Manufacturer + '\' + $productFolder
     }
     $escapedFolder = [System.Security.SecurityElement]::Escape($folderPath)
+    $escapedShortcutKey = [System.Security.SecurityElement]::Escape("Software\$Manufacturer\$AppName")
 
     # WiX v7 Bundle has no Scope attribute (WIX0004). MSI Package/@Scope plus
     # InstallFolder tokens decide per-machine vs per-user; Burn infers bundle scope.
     return @"
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Bundle Name="$escapedName" Manufacturer="$escapedMfr" Version="$ProductVersion" UpgradeCode="$($bundleUpgrade.ToString('D'))"$iconAttr>
     <Variable Name="InstallFolder" Type="formatted" Value="$escapedFolder" bal:Overridable="yes" />
     <Variable Name="InstallDesktopShortcut" Type="numeric" Value="0" bal:Overridable="yes" />
+    <Variable Name="DesktopShortcutFound" Type="string" Value="" bal:Overridable="yes" />
+    <util:RegistrySearch Id="DesktopShortcutFoundSearch" Variable="DesktopShortcutFound" Root="HKCU" Key="$escapedShortcutKey" Value="desktop" Result="exists" />
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication Theme="$theme" LicenseUrl=""$logoAttrs />
     </BootstrapperApplication>
@@ -999,6 +1282,7 @@ function New-WixBundleXml {
       <MsiPackage SourceFile="$escapedMsi" Compressed="yes" Vital="yes">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
         <MsiProperty Name="INSTALLDESKTOPSHORTCUT" Value="[InstallDesktopShortcut]" />
+        <MsiProperty Name="DESKTOPSHORTCUTFOUND" Value="[DesktopShortcutFound]" />
       </MsiPackage>
     </Chain>
   </Bundle>
@@ -1020,7 +1304,9 @@ Export-ModuleMember -Function `
     New-WixBundleXml, `
     Get-DefaultFlatpakFinishArgs, `
     New-FlatpakDesktopEntry, `
+    Copy-FlatpakHicolorIcons, `
     New-FlatpakMetainfoXml, `
+    Set-FlatpakMetainfoRelease, `
     New-FlatpakManifestObject, `
     New-FlatpakLaunchScript, `
     Assert-FlatpakAppId, `

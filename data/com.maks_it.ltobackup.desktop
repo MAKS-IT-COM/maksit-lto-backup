@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=LTO Backup
+GenericName=Tape backup
+Comment=LTO tape backup and restore
+Exec=maksit-lto-backup
+Icon=com.maks_it.ltobackup
+StartupWMClass=com.maks_it.ltobackup
+StartupNotify=true
+Terminal=false
+Categories=Utility;Archiving;
+Keywords=lto;tape;backup;restore;

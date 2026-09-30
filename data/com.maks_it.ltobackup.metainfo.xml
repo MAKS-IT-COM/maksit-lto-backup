@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.maks_it.ltobackup</id>
+  <name>LTO Backup</name>
+  <summary>LTO tape backup and restore</summary>
+  <developer id="com.maks_it">
+    <name>MaksIT</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0</project_license>
+  <description>
+    <p>Run LTO tape backup and restore from the desktop. Inventory a drive or library, start jobs, and watch progress without a vendor GUI.</p>
+    <p>The Flatpak is the Avalonia UI. Tape devices need host SCSI/sg access; backup destinations use the home folder.</p>
+    <ul>
+      <li>Drive and library inventory</li>
+      <li>Backup and restore jobs</li>
+      <li>Settings and a worker/service monitor</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.maks_it.ltobackup.desktop</launchable>
+  <provides>
+    <id>com.maks_it.LtoBackup</id>
+  </provides>
+  <replaces>
+    <id>com.maks_it.LtoBackup</id>
+  </replaces>
+  <url type="homepage">https://maks-it.com/</url>
+  <url type="bugtracker">https://github.com/MAKS-IT-COM/maksit-lto-backup/issues</url>
+  <url type="vcs-browser">https://github.com/MAKS-IT-COM/maksit-lto-backup</url>
+  <url type="donation">https://www.buymeacoffee.com/maksitcom</url>
+  <branding>
+    <color type="primary" scheme_preference="light">#33A5CF</color>
+    <color type="primary" scheme_preference="dark">#003D7A</color>
+  </branding>
+  <content_rating type="oars-1.1"/>
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <releases>
+    <release version="0.1.0-alpha.3" date="2026-09-30">
+      <url type="details">https://github.com/MAKS-IT-COM/maksit-lto-backup/blob/v0.1.0-alpha.3/CHANGELOG.md</url>
+      <description>
+        <p>Crash dialog with a copyable report and crash log. Linux Flatpak uses X11/XWayland, lowercase app id com.maks_it.ltobackup, and the same release version as the zip and setup exe.</p>
+      </description>
+    </release>
+    <release version="0.1.0-alpha.2" date="2026-09-06">
+      <url type="details">https://github.com/MAKS-IT-COM/maksit-lto-backup/blob/v0.1.0-alpha.2/CHANGELOG.md</url>
+      <description>
+        <p>Linux Flatpak uses X11/XWayland from the GNOME app icon and a lowercase app id. GitHub ships a sibling .flatpak of the Avalonia UI.</p>
+      </description>
+    </release>
+  </releases>
+</component>

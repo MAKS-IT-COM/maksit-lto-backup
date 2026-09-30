@@ -1,8 +1,8 @@
 # MaksIT.LTO.Backup
 
-![Line Coverage](https://img.shields.io/badge/Line%20Coverage-39.3%25-yellow)
-![Branch Coverage](https://img.shields.io/badge/Branch%20Coverage-28.7%25-yellow)
-![Method Coverage](https://img.shields.io/badge/Method%20Coverage-49.7%25-yellowgreen)
+![Line Coverage](https://img.shields.io/badge/Line%20Coverage-39.8%25-yellow)
+![Branch Coverage](https://img.shields.io/badge/Branch%20Coverage-29.9%25-yellow)
+![Method Coverage](https://img.shields.io/badge/Method%20Coverage-49.5%25-yellowgreen)
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![License](https://img.shields.io/badge/License-GPLv2-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-0078D6)
@@ -22,7 +22,7 @@ Device access modes:
 - **Physical** — real drive/library on **Windows** (`\\.\Tape0`, `\\.\Changer0`; admin) or **Linux** (`/dev/nst0`, `/dev/sg*`; `tape`/`disk` group)
 - **Emulated** — file-backed drive + library (no hardware; primary CI / no-hardware path)
 
-> Current line is **`0.1.0-alpha.2`** (prerelease, not production-ready). Emulator coverage is the primary validation path; physical tape/changer and Linux SMB are not hardware-proven yet. Use at your own risk.
+> Current line is **`0.1.0-alpha.3`** (prerelease, not production-ready). Emulator coverage is the primary validation path; physical tape/changer and Linux SMB are not hardware-proven yet. Use at your own risk.
 
 ---
 
@@ -236,6 +236,32 @@ Vendored under `utils/` (from MaksIT RepoUtils community):
 | Release | `utils\Invoke-ReleasePackage.bat` |
 
 GitHub assets are siblings: portable `maksit-lto-backup-{version}.zip` (win-x64), Windows setup exe (Avalonia UI), and Flatpak (Avalonia UI). The installer and Flatpak are not inside the zip. On Windows the Flatpak bundle is built via WSL Debian.
+
+### Linux (Flatpak)
+
+GitHub releases include `maksit-lto-backup-{version}.flatpak` (Avalonia UI).
+
+**User** (this account only):
+
+```bash
+flatpak install --user ./maksit-lto-backup-{version}.flatpak
+flatpak run com.maks_it.ltobackup
+```
+
+**System** (all users):
+
+```bash
+sudo flatpak install --system ./maksit-lto-backup-{version}.flatpak
+flatpak run com.maks_it.ltobackup
+```
+
+Uninstall: `flatpak uninstall --user com.maks_it.ltobackup` or `sudo flatpak uninstall --system com.maks_it.ltobackup`.
+
+The previous id `com.maks_it.LtoBackup` is replaced by this lowercase id. Uninstall the old app before installing the new bundle if it was installed.
+
+If GNOME or KDE does not show a launcher icon, `flatpak run` may warn that `/var/lib/flatpak/exports/share` and `~/.local/share/flatpak/exports/share` are not on `XDG_DATA_DIRS`. Log out and back in once so the session picks up those paths.
+
+Linux uses X11/XWayland (Avalonia native Wayland still hangs on GNOME). The sandbox grants `--device=all` for tape and `--filesystem=home` for backup paths. AppStream and the desktop file live in [`data/`](data/).
 
 Settings:
 

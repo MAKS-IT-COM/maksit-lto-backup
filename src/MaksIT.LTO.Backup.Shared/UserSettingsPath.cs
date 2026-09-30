@@ -9,9 +9,14 @@ namespace MaksIT.LTO.Backup.Shared;
 /// </summary>
 public static class UserSettingsPath {
   public static string Get(string product, string fileName = "settings.json") =>
+    Path.Combine(ProductDirectory(product), fileName);
+
+  public static string LogsDirectory(string product) =>
+    Path.Combine(ProductDirectory(product), "logs");
+
+  public static string ProductDirectory(string product) =>
     Path.Combine(
       Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
       "MaksIT",
-      product,
-      fileName);
+      product);
 }

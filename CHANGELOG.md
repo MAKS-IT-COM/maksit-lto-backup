@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-09-30
+
+Still alpha versus **0.1.0-alpha.2**. Emulator and build validated; physical Windows/Linux tape, changer, and Linux SMB staging are not hardware-proven yet. Not a production-ready line.
+
+### Added
+
+- Avalonia UI crash dialog for unhandled dispatcher, AppDomain, and task exceptions. The report is copyable and written as `crash-*.txt` under the product logs folder (`%AppData%/MaksIT/LTO Backup/logs`, and the Linux application-data equivalent).
+- Flatpak desktop file and AppStream metainfo in `data/` (`com.maks_it.ltobackup`). README documents user and system `flatpak install`.
+- Release publish is self-contained for `win-x64` and `linux-x64`. The portable zip stays win-x64. `WindowsInstaller` and `FlatpakPack` run in the release engine. GitHub release requires the zip, setup exe, and Flatpak; cleanup keeps those three.
+
+### Changed
+
+- Avalonia **12.1.2** (was 12.1.0).
+- Linux UI stays on X11/XWayland (`UsePlatformDetect` only). Avalonia 12.1.2 native Wayland still hangs on GNOME `xdg_toplevel.configure(0, 0)` when launched from the GNOME app icon.
+- Flatpak app id is lowercase `com.maks_it.ltobackup` (replaces `com.maks_it.LtoBackup`). Uninstall the old id before installing a new bundle. Finish args include `--device=all` (tape) and `--filesystem=home`. AppStream `<release version>` is stamped from the same `Directory.Build.props` version as the zip and setup exe, so `flatpak info` matches the bundle file name.
+- Windows installer build also links `WixToolset.Util.wixext`.
+- Vendored RepoUtils platform plugins: `CollectCoverage`, `ContainerEngineProbe`, `DiscoverPackageArtifacts`.
+
+### Removed
+
+- Unused npm pack plugins (`NpmBuild`, `NpmJestTest`, `NpmPack`, `NpmPackageSupport`, `NpmPublish`, `NpmReleaseVersion`). `NpmPublish` stays disabled in release settings.
+
 ## [0.1.0-alpha.2] - 2026-09-06
 
 Still alpha versus **0.1.0-alpha.1**. Emulator and build validated; physical Windows/Linux tape, changer, and Linux SMB staging are not hardware-proven yet. Not a production-ready line.
